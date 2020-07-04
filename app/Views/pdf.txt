@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<style>
+		html,body{font-family: 'Lucida Sans';}
+		#invoice{max-width:800px;margin:0 auto}
+		#billship,#company,#items{width:100%;border-collapse:collapse}
+		#company td,#billship td,#items td,#items th{padding:15px}
+		#company,#billship{margin-bottom:30px}
+		#company img{max-width:180px;height:auto}
+		#bigi{font-size:28px;color:#ad132f;text-align: center;}
+		#billship{background:#b92d2d;color:#fff}
+		#billship td{width:33%}
+		#items th{text-align:left;border-top:2px solid #f6a5a5;border-bottom:2px solid #f6a5a5}
+		#items td{border-bottom:1px solid #f6a5a5}.idesc{color:#ca3f3f}
+		.ttl{font-weight:700}
+		.right{text-align:right}#notes{margin-top:30px;font-size:.95em}
+	</style>
+</head>
+<body>
+<div id='invoice'>
+	<table id='company'>
+		<tr>
+			<td><img height="190px" width="190px" src='<?=base_url("assets/img/logo.png")?>'/>
+			</td>
+			<td class='right'>
+				<div>Company</div>
+				<div>Company</div>
+				<div>Company</div>
+			</td>
+		</tr>
+	</table>
+	<div id='bigi'>SALES INVOICE</div>
+	<table id='billship'>
+		<tr>
+			<td>
+				<strong>BILL TO</strong><br>
+				billto<br>
+				billto<br>
+				billto<br>
+			</td>
+			<td><strong>SHIP TO</strong><br>
+				shipto<br>
+				shipto<br>
+				shipto<br>
+			</td>
+			<td>
+				<strong>Details:</strong> Details<br>
+				<strong>Details:</strong> Details<br>
+				<strong>Details:</strong> Details<br>
+			</td>
+		</tr>
+	</table>
+	<table id='items'>
+		<tr>
+			<th>Item</th>
+			<th>Quantity</th>
+			<th>Unit Price</th>
+			<th>Amount</th>
+		</tr>
+		<tr>
+			<td>
+				<div>2322</div>Bonnet<br><small class='idesc'>Kawundo</small>
+			</td>
+			<td>34</td>
+			<td>230000</td>
+			<td>5000000</td>
+		</tr>
+		<tr>
+			<td>
+				<div>2322</div>Bonnet<br><small class='idesc'>Kawundo</small>
+			</td>
+			<td>34</td>
+			<td>230000</td>
+			<td>5000000</td>
+		</tr>
+		<tr class='ttl'>
+			<td class='right' colspan='3'>Total: </td><td>10000000</td>
+		</tr>
+		<tr>
+			<td class='right' colspan='3'> Less Vat 18%: </td><td>(300000)</td>
+		</tr>
+		<tr>
+			<td class='right' colspan='3'>Total: </td><td>97000000</td>
+		</tr>
+	</table>
+	<div id='notes'>
+		note<br>
+		note<br>
+		note<br>
+	</div>
+</div>
+</body>
+</html>
