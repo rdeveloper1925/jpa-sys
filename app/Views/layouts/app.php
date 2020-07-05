@@ -62,6 +62,11 @@
 				<span class="my-nav">Inventory</span></a>
 		</li>
         <li class="nav-item">
+            <a class="nav-link" href="<?=base_url('suppliers')?>">
+                <i class="fas fa-fw fa-list-ul"></i>
+                <span class="my-nav">Suppliers</span></a>
+        </li>
+        <li class="nav-item">
             <a class="nav-link" href="<?=base_url('customers')?>">
                 <i class="fas fa-fw fa-list-ul"></i>
                 <span class="my-nav">Customers</span></a>
