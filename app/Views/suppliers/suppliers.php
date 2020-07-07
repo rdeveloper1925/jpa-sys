@@ -37,7 +37,10 @@
                             <td><?=$supplier->supplier_name?></td>
                             <td><?=$supplier->balance?></td>
                             <td>
-
+                                <a href="<?=base_url('suppliers/view_ledger/'.$supplier->id)?>" class="btn btn-primary btn-sm">View Ledger</a>
+                                <button type="button" class="btn btn-warning btn-sm editing" id="<?=$supplier->id?>" data-toggle="modal" data-target="#modelId1">
+                                    Launch
+                                </button>
                             </td>
                         </tr>
                         <?php endforeach; ?>
@@ -48,6 +51,7 @@
         </div>
     </div>
 </div>
+
 <!-- Button trigger modal -->
 
 
@@ -76,6 +80,35 @@
         </div>
     </div>
 </div>
+<!-- Button trigger modal -->
+
+
+
+<!-- Modal -->
+<div class="modal fade" id="modelId1" tabindex="-1" role="dialog" aria-labelledby="modelTitleId" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Modal title</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+            </div>
+            <div class="modal-body">
+                Body
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary">Save</button>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    $(".editing").on('click',function () {
+        alert($(this).attr('id'));
+    })
+</script>
 <script>
     function del(id) {
         if(confirm("Are you sure you want to delete this invoice?")){

@@ -25,4 +25,12 @@ class Suppliers extends BaseController {
         $db->table('suppliers')->insert($supplier);
         return redirect()->to(base_url('suppliers/'));
     }
+
+    public function view_ledger($id){
+        $db=Database::connect();
+        $result=$db->table('supplier_ledgers')->getWhere(['supplier_id'=>$id])->getResult('object');
+        $data['ledger']=$result;
+        $data['title']='Supplier Ledger';
+        return view('suppliers/view_ledger');
+    }
 }
