@@ -311,7 +311,7 @@ class Proforma extends BaseController {
         return redirect()->to(base_url('pages/error'));
     }
 
-    public function tax_and_discounts($id){
+    public function tax_and_discounts($id=0){
         $db=Database::connect();
         $maker=$db->table('proforma')->select('users.fullName as maker')
                     ->join('users','proforma.preparedBy=users.id')
@@ -322,11 +322,16 @@ class Proforma extends BaseController {
         $custData=$db->table('customers')
             ->select('*')->join('proforma','proforma.customerId=customers.id','inner')
             ->getWhere(['invoiceId'=>$id])->getResult('object')[0];
+        $date=date('Y-m-d',strtotime($custData->date));
+        $before=$db->query("select proforma.invoiceId,proforma.date,customers.customerName from proforma left JOIN customers on proforma.customerId=customers.id where proforma.date<$date group by proforma.date asc LIMIT 25 ")
+            ->getResult();
+        $after=$db->query("select proforma.invoiceId,proforma.date,customers.customerName from proforma left JOIN customers on proforma.customerId=customers.id where proforma.date>$date group by proforma.date asc LIMIT 25 ")
+            ->getResult();
         //print_r($items);return;
         if(empty($items)){
             return redirect()->to(base_url('proforma/invoice_items/'.$id));
         }
-        return view('proforma/taxAndDiscounts',['maker'=>$maker,'invoiceId'=>$id,'items'=>$items,'data'=>$custData,'title'=>'Tax and Discounts','discount'=>$discount]);
+        return view('proforma/taxAndDiscounts',['before'=>$before,'after'=>$after,'maker'=>$maker,'invoiceId'=>$id,'items'=>$items,'data'=>$custData,'title'=>'Tax and Discounts','discount'=>$discount]);
     }
 
     public function apply_discount($id){

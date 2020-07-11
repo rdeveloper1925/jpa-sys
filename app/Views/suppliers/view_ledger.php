@@ -88,7 +88,11 @@
                         </div>
                         <div class="form-group col-6">
                             <label for="date">Quantity:</label>
-                            <input type="date" class="form-control" required name="quantity"/>
+                            <input type="text" class="form-control" required name="quantity"/>
+                        </div>
+                        <div class="form-group col-6">
+                            <label for="date">Quantity:</label>
+                            <input type="text" class="form-control" required name="quantity"/>
                         </div>
                     </div>
 

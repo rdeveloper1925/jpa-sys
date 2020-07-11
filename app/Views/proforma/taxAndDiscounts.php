@@ -2,25 +2,25 @@
 $this->section('content') ?>
 <div class="row">
 	<div class="col-md-3">
-	<div class="card mb-4">
-		<div class="card-header">
-			Apply Discount
-		</div>
-		<div class="card-body">
-			<?php if(empty($discount)): ?>
-			<form action="<?=base_url('proforma/apply_discount/'.$invoiceId)?>" method="post">
-				<div class="form-group">
-					<label for="">Discount (%)</label>
-					<input class="form-control" type="number" name="discount" required max="99" min="0"/>
-				</div>
-				<input type="submit" class="btn btn-success" value="Apply Discount"/>
-			</form>
-			<?php elseif (!empty($discount)): ?>
-			<h5>Applied Discount: <strong><?=$discount[0]['discount']?>%</strong></h5>
-			<a href="<?=base_url('proforma/remove_discount/'.$invoiceId)?>" class="btn btn-danger">Remove Discount</a>
-			<?php endif; ?>
-		</div>
-	</div>
+        <div class="card mb-4">
+            <div class="card-header">
+                Apply Discount
+            </div>
+            <div class="card-body">
+                <?php if(empty($discount)): ?>
+                <form action="<?=base_url('proforma/apply_discount/'.$invoiceId)?>" method="post">
+                    <div class="form-group">
+                        <label for="">Discount (%)</label>
+                        <input class="form-control" type="number" name="discount" required max="99" min="0"/>
+                    </div>
+                    <input type="submit" class="btn btn-success" value="Apply Discount"/>
+                </form>
+                <?php elseif (!empty($discount)): ?>
+                <h5>Applied Discount: <strong><?=$discount[0]['discount']?>%</strong></h5>
+                <a href="<?=base_url('proforma/remove_discount/'.$invoiceId)?>" class="btn btn-danger">Remove Discount</a>
+                <?php endif; ?>
+            </div>
+        </div>
 	</div>
 	<div class="col-md-9">
 	<div class="card mb-4">
@@ -157,6 +157,39 @@ $this->section('content') ?>
 		</div>
 	</div>
 </div>
+    <div class="col-md-12 row">
+        <div class="card m-0 col-md-6">
+            <div class="card-header">
+                Proformas created before <?=$invoiceId?>
+            </div>
+            <div class="card-body">
+                <table class="">
+                    <?php foreach($before as $r): ?>
+                    <tr>
+                        <td><a href="<?=base_url('proforma/tax_and_discounts/'.$r->invoiceId)?>"><?=$r->invoiceId?></a> </td>
+                        <td style="font-size: 12px;"><?=$r->customerName?> (<?=date('d-M-Y',strtotime($r->date))?>)</td>
+
+                    </tr>
+                    <?php endforeach; ?>
+                </table>
+            </div>
+        </div>
+        <div class="card m-0 col-md-6">
+            <div class="card-header">
+                Proformas created after <?=$invoiceId?>
+            </div>
+            <div class="card-body">
+                <table class="">
+                    <?php foreach($after as $r): ?>
+                        <tr>
+                            <td><a href="<?=base_url('proforma/tax_and_discounts/'.$r->invoiceId)?>"><?=$r->invoiceId?></a> </td>
+                            <td style="font-size: 12px;"><?=$r->customerName?> (<?=date('d-M-Y',strtotime($r->date))?>)</td>
+                        </tr>
+                    <?php endforeach; ?>
+                </table>
+            </div>
+        </div>
+    </div>
 </div>
 
 <?php $this->endsection(); ?>
