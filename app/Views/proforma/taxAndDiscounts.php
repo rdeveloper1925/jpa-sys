@@ -160,7 +160,7 @@ $this->section('content') ?>
     <div class="col-md-12 row">
         <div class="card m-0 col-md-6">
             <div class="card-header">
-                Proformas created before <?=$invoiceId?>
+                Proformas created before <?=$invoiceId?> (<?=date('d-M-Y',strtotime($data->date))?>)
             </div>
             <div class="card-body">
                 <table class="">
@@ -176,7 +176,7 @@ $this->section('content') ?>
         </div>
         <div class="card m-0 col-md-6">
             <div class="card-header">
-                Proformas created after <?=$invoiceId?>
+                Proformas created after <?=$invoiceId?>  (<?=date('d-M-Y',strtotime($data->date))?>)
             </div>
             <div class="card-body">
                 <table class="">

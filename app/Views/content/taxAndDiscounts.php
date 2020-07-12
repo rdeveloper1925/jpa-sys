@@ -157,5 +157,38 @@ $this->section('content') ?>
 	</div>
 </div>
 </div>
+<div class="col-md-12 row">
+    <div class="card m-0 col-md-6">
+        <div class="card-header">
+            Tax Invoices created before <?=$invoiceId?> (<?=date('d-M-Y',strtotime($data->date))?>)
+        </div>
+        <div class="card-body">
+            <table class="">
+                <?php foreach($before as $r): ?>
+                    <tr>
+                        <td><a href="<?=base_url('proforma/tax_and_discounts/'.$r->invoiceId)?>"><?=$r->invoiceId?></a> </td>
+                        <td style="font-size: 12px;"><?=$r->customerName?> (<?=date('d-M-Y',strtotime($r->date))?>)</td>
+
+                    </tr>
+                <?php endforeach; ?>
+            </table>
+        </div>
+    </div>
+    <div class="card m-0 col-md-6">
+        <div class="card-header">
+            Tax Invoices created after <?=$invoiceId?>  (<?=date('d-M-Y',strtotime($data->date))?>)
+        </div>
+        <div class="card-body">
+            <table class="">
+                <?php foreach($after as $r): ?>
+                    <tr>
+                        <td><a href="<?=base_url('proforma/tax_and_discounts/'.$r->invoiceId)?>"><?=$r->invoiceId?></a> </td>
+                        <td style="font-size: 12px;"><?=$r->customerName?> (<?=date('d-M-Y',strtotime($r->date))?>)</td>
+                    </tr>
+                <?php endforeach; ?>
+            </table>
+        </div>
+    </div>
+</div>
 
 <?php $this->endsection(); ?>

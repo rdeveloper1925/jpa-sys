@@ -280,11 +280,16 @@ class Invoices extends BaseController {
 		$custData=$db->table('customers')
                 ->select('*')->join('invoice','invoice.customerId=customers.id','inner')
                 ->getWhere(['invoiceId'=>$id])->getResult('object')[0];
+        $date=date('Y-m-d',strtotime($custData->date));
+        $before=$db->query("select invoice.invoiceId,invoice.date,customers.customerName from invoice left JOIN customers on invoice.customerId=customers.id where invoice.date<'$date' group by invoice.date asc LIMIT 25 ")
+            ->getResult();
+        $after=$db->query("select invoice.invoiceId,invoice.date,customers.customerName from invoice left JOIN customers on invoice.customerId=customers.id where invoice.date>$date group by invoice.date asc LIMIT 25 ")
+            ->getResult();
 		//print_r($items);return;
 		if(empty($items)){
 			return redirect()->to(base_url('invoices/invoice_items/'.$id));
 		}
-		return view('content/taxAndDiscounts',['maker'=>$maker,'invoiceId'=>$id,'items'=>$items,'data'=>$custData,'title'=>'Tax and Discounts','discount'=>$discount]);
+		return view('content/taxAndDiscounts',['before'=>$before,'after'=>$after,'maker'=>$maker,'invoiceId'=>$id,'items'=>$items,'data'=>$custData,'title'=>'Tax and Discounts','discount'=>$discount]);
 	}
 
 	public function apply_discount($id){

@@ -44,8 +44,13 @@
                     <?php endforeach; ?>
                     </tbody>
                 </table>
-                <a href="<?=base_url('reports/excel/'.$from.'/'.$to)?>" class="btn btn-success">Generate Excel</a><br><BR>
-                <a href="<?=base_url('reports/pdf')?>" class="btn btn-primary">Generate PDF</a><br>
+                <?php if ($title=='TAX INVOICE REPORT'): ?>
+                    <a href="<?=base_url('reports/tax_excel/'.$from.'/'.$to.'/'.$customer)?>" class="btn btn-success">Generate Excel</a><br><BR>
+                    <a href="<?=base_url('reports/tax_pdf/'.$from.'/'.$to.'/'.$customer)?>" class="btn btn-primary">Generate PDF</a><br>
+                <?php else: ?>
+                    <a href="<?=base_url('reports/excel/'.$from.'/'.$to.'/'.$customer)?>" class="btn btn-success">Generate Excel</a><br><BR>
+                    <a href="<?=base_url('reports/pdf/'.$from.'/'.$to.'/'.$customer)?>" class="btn btn-primary">Generate PDF</a><br>
+                <?php endif; ?>
             </div>
         </div>
     </div>

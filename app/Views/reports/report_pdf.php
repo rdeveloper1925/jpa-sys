@@ -76,9 +76,6 @@
     <table id='billship' style="padding-bottom:2px"><!--
         <tr>
             <td>
-                <?php if($ttl=='TAX INVOICE'): ?>
-                    LPO NO.: <b></b><br>
-                <?php endif; ?>
                 CUSTOMER: <b></b><br>
                 ADDRESS: <b></b><br>
                 EMAIL: <b></b><br>
@@ -105,6 +102,10 @@
             <td style="color: black; text-align: center"><strong>Invoice No.</strong></td>
             <td style="color: black; text-align: center;"><strong>Customer</strong></td>
             <td style="color: black; text-align: center;"><strong>Date</strong></td>
+            <td style="color: black; text-align: center;"><strong>VAT</strong></td>
+            <td style="color: black; text-align: center;"><strong>Witholding Tax</strong></td>
+            <td style="color: black; text-align: center;"><strong>Narration</strong></td>
+            <td style="color: black; text-align: center;"><strong>LPO</strong></td>
             <td style="color: black; text-align: center;"><strong>Value</strong></td>
         </tr>
         <tbody><?php $grand=0; ?>
@@ -113,8 +114,16 @@
                 <td><?=$d['ID']?></td>
                 <td><?=$d['CUSTOMER_NAME']?></td>
                 <td><?=date('d-M-Y',strtotime($d['DATE']))?></td>
-                <td style="text-align: right"><?=$d['CURRENCY'].'. '?><?=number_format($d['sum']['SM'],2,'.',',')?></td>
-                <?php $grand=$grand+$d['sum']['SM']; ?>
+                <td style="color: black; text-align: center;"><?=number_format($d['vat'],2,'.',',')?></td>
+                <?php if ($d['sum']>=1000000): ?>
+                    <td style="color: black; text-align: center;"><?=number_format($d['sum']*(6/100),'.',',')?></td>
+                <?php else: ?>
+                    <td style="color: black; text-align: center;">0</td>
+                <?php endif; ?>
+                <td style="color: black; text-align: center;"><?=$d['NARRATION']?></td>
+                <td style="color: black; text-align: center;"><?=$d['LPO']?></td>
+                <td style="text-align: right"><?=$d['CURRENCY'].'. '?><?=number_format($d['sum']+$d['vat'],2,'.',',')?></td>
+                <?php $grand=$grand+$d['sum']; ?>
             </tr>
         <?php endforeach; ?>
         </tbody>

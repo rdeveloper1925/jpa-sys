@@ -22,6 +22,7 @@
                        <select name="reportType" class="form-control" required>
                            <option>Proforma Report</option>
                            <option>Tax Invoice Report</option>
+                           <option>Supplier Report</option>
                        </select>
                    </div>
                    <div class="form-group">
@@ -31,6 +32,15 @@
                    <div class="form-group">
                        <label for="to">To Date:</label>
                        <input type="date" id="to" class="form-control" name="to" required/>
+                   </div>
+                   <div class="form-group">
+                       <label for="customer">Customer:</label>
+                       <select class="form-control" name="customer">
+                           <option selected>All</option>
+                           <?php foreach ($customers as $c): ?>
+                           <option value="<?=$c->id?>"><?=$c->customerName?></option>
+                           <?php endforeach; ?>
+                       </select>
                    </div>
                    <input type="submit" class="btn btn-outline-success" value="Generate"/>
                </form>
