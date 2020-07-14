@@ -58,7 +58,7 @@ class Invoices extends BaseController {
 
 	public function save(){
 		//alter table invoice AUTO_INCREMENT=21324
-        //return print_r($this->request->getVar());
+        //return print_r($this->request->getVar('existingData'));
         $db=Database::connect();
         $db->table('proformainvoicenumbers')->insert(['status'=>1]);
         $proformaId=$db->insertID();
@@ -87,15 +87,74 @@ class Invoices extends BaseController {
         );
 		$db->table('customers')->update($custDetails,['id'=>$this->request->getVar('customerId')]);
 		$db->table('invoice')->insert($invoice);
-		if($db->affectedRows()==1){
-			$invoiceId=$db->insertID();
-		return redirect()->to(base_url('invoices/invoice_items/'.$invoiceId));
+		$invoiceId=$db->insertID();
+		//return print_r($invoiceId);
+		if($this->request->getVar('existingData')=='existing'){
+		    return redirect()->to(base_url('invoices/existing/'.$invoiceId));
 		}else{
-			echo "Input failed";
-			return null;
+		    return redirect()->to(base_url('invoices/invoice_items/'.$invoiceId));
 		}
-        return redirect()->to(base_url('pages/error'));
 	}
+
+	public function existing($invoiceId){
+        $data['title']="Use Exising Proforma Items";
+        $data['taxId']=$invoiceId;
+        return view('content/existing',$data);
+    }
+
+    public function search($invoiceId){
+        $data['title']="Use Exising Proforma Items";
+        $data['taxId']=$invoiceId;
+        $db=Database::connect();
+        $usr=\Config\Services::session()->get('id');
+        $id=$this->request->getVar('invoiceNo');
+        $proforma=$db->table('proforma')->getWhere(['invoiceId'=>$id])->getResult();
+        $items=$db->table('proformaitems2')->getWhere(['invoiceId'=>$id])->getResult();
+        $db->table('items_temp2')->delete(['userId'=>$usr]);
+        if (!empty($proforma)&&!empty($items)){
+            //foreach ()
+            $data['proforma']=$proforma[0];
+            $data['items']=$items;
+            return view('content/existing',$data);
+        }else{
+            echo "Proforma not found. Please check and try again";
+            return;
+        }
+    }
+
+    public function fetch_proforma_items(){
+	    $db=Database::connect();
+	    $id=$this->request->getVar('invoiceId');
+	    $proforma=$db->table('proforma')->getWhere(['invoiceId'=>$id])->getResult();
+	    $items=$db->table('proformaitems2')->getWhere(['invoiceId'=>$id])->getResult();
+	    if (!empty($proforma)&&!empty($items)){
+	        $data['proforma']=$proforma[0];
+	        $data['items']=$items;
+	        $data['success']=1;
+	        return json_encode($data);
+        }else{
+	        return json_encode(['success'=>0]);
+        }
+
+    }
+
+    public function confirm(){
+	    $id=$this->request->getVar('invoiceId');
+	    $db=Database::connect();
+        $items=$db->table('proformaitems2')->getWhere(['invoiceId'=>$id])->getResult('array');
+        foreach ($items as $i){
+            $data=array(
+                'inventoryItem'=>$i['inventoryItem'],
+                'quantity'=>$i['quantity'],
+                'unitCost'=>$i['unitCost'],
+                'invoiceId'=>$this->request->getVar('taxId'),
+                'units'=>$i['units'],
+                'total'=>$i['total']
+            );
+            $db->table('invoiceitems2')->insert($data);
+        }
+        return redirect()->to(base_url('invoices/tax_and_discounts/'.$id));
+    }
 
     public function save_edits(){
         //alter table invoice AUTO_INCREMENT=21324

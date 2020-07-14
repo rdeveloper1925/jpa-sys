@@ -99,8 +99,13 @@
                                 <option>Supply of Parts</option>
                             </datalist>
                         </div>
+                        <div class="form-check col-4">
+                            <label for="existingData">Items to Use;</label><br>
+                            <input type="radio" class="form-check-inline" name="existingData" value="existing"/>Use Existing Items<br>
+                            <input type="radio" class="form-check-inline" name="existingData" value="new"/> Enter new Items
+                        </div>
 						<div class="col-12">
-							<button type="submit" class="btn btn-success">Proceed to Invoice Items <i class="fa fa-forward" aria-hidden="true"></i></button>
+							<button type="submit" class="btn btn-success">Proceed <i class="fa fa-forward" aria-hidden="true"></i></button>
 						</div>
                     </div>
                 </form>
