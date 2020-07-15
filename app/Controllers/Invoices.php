@@ -106,20 +106,70 @@ class Invoices extends BaseController {
         $data['title']="Use Exising Proforma Items";
         $data['taxId']=$invoiceId;
         $db=Database::connect();
+        $stock=$db->table('inventory')->get()->getResult('object');
         $usr=\Config\Services::session()->get('id');
         $id=$this->request->getVar('invoiceNo');
         $proforma=$db->table('proforma')->getWhere(['invoiceId'=>$id])->getResult();
         $items=$db->table('proformaitems2')->getWhere(['invoiceId'=>$id])->getResult();
-        $db->table('items_temp2')->delete(['userId'=>$usr]);
+        $db->table('invoiceitemstemp')->delete(['userId'=>$usr]);
         if (!empty($proforma)&&!empty($items)){
-            //foreach ()
+            foreach ($items as $i){
+                $invoice_item=array(
+                    'inventoryItem'=>$i->inventoryItem,
+                    'unitCost'=>$i->unitCost,
+                    'invoiceId'=>$i->invoiceId,
+                    'quantity'=>$i->quantity,
+                    'total'=>$i->unitCost * $i->quantity,
+                    'units'=>$i->units,
+                    'userId'=>$usr
+                );
+                $db->table('invoiceitemstemp')->insert($invoice_item);
+            }
             $data['proforma']=$proforma[0];
-            $data['items']=$items;
+            $data['stock']=$stock;
+            $data['items']=$db->table('invoiceitemstemp')->getWhere(['userId'=>$usr])->getResult();
             return view('content/existing',$data);
         }else{
             echo "Proforma not found. Please check and try again";
             return;
         }
+    }
+
+    public function delete_temp($itemid,$taxId,$proformaId){
+	    $db=Database::connect();
+        $usr=\Config\Services::session()->get('id');
+	    $db->table('invoiceitemstemp')->delete(['id'=>$itemid,'userId'=>$usr]);
+        $data['title']="Use Exising Proforma Items";
+        $data['taxId']=$taxId;
+        $stock=$db->table('inventory')->get()->getResult('object');
+        $data['stock']=$stock;
+        $proforma=$db->table('proforma')->getWhere(['invoiceId'=>$proformaId])->getResult();
+        $data['proforma']=$proforma[0];
+        $data['items']=$db->table('invoiceitemstemp')->getWhere(['userId'=>$usr])->getResult();
+        return view('content/existing',$data);
+    }
+
+    public function new_temp_item($proformaId){
+        $db=Database::connect();
+        $usr=\Config\Services::session()->get('id');
+        $stock=$db->table('inventory')->get()->getResult('object');
+        $invoice_item=array(
+            'inventoryItem'=>$this->request->getVar('inventoryItem'),
+            'unitCost'=>$this->request->getVar('unitPrice'),
+            'invoiceId'=>$this->request->getVar('taxId'),
+            'quantity'=>$this->request->getVar('quantity'),
+            'total'=>$this->request->getVar('unitPrice') * $this->request->getVar('quantity'),
+            'units'=>$this->request->getVar('units'),
+            'userId'=>$usr
+        );
+        $db->table('invoiceitemstemp')->insert($invoice_item);
+        $data['stock']=$stock;
+        $data['title']="Use Exising Proforma Items";
+        $data['taxId']=$this->request->getVar('taxId');
+        $proforma=$db->table('proforma')->getWhere(['invoiceId'=>$proformaId])->getResult();
+        $data['proforma']=$proforma[0];
+        $data['items']=$db->table('invoiceitemstemp')->getWhere(['userId'=>$usr])->getResult();
+        return view('content/existing',$data);
     }
 
     public function fetch_proforma_items(){
@@ -140,8 +190,9 @@ class Invoices extends BaseController {
 
     public function confirm(){
 	    $id=$this->request->getVar('invoiceId');
+        $usr=\Config\Services::session()->get('id');
 	    $db=Database::connect();
-        $items=$db->table('proformaitems2')->getWhere(['invoiceId'=>$id])->getResult('array');
+        $items=$db->table('invoiceitemstemp')->getWhere(['userId'=>$usr])->getResult('array');
         foreach ($items as $i){
             $data=array(
                 'inventoryItem'=>$i['inventoryItem'],
@@ -152,8 +203,9 @@ class Invoices extends BaseController {
                 'total'=>$i['total']
             );
             $db->table('invoiceitems2')->insert($data);
+
         }
-        return redirect()->to(base_url('invoices/tax_and_discounts/'.$id));
+        return redirect()->to(base_url('invoices/tax_and_discounts/'.$this->request->getVar('taxId')));
     }
 
     public function save_edits(){
@@ -340,9 +392,9 @@ class Invoices extends BaseController {
                 ->select('*')->join('invoice','invoice.customerId=customers.id','inner')
                 ->getWhere(['invoiceId'=>$id])->getResult('object')[0];
         $date=date('Y-m-d',strtotime($custData->date));
-        $before=$db->query("select invoice.invoiceId,invoice.date,customers.customerName from invoice left JOIN customers on invoice.customerId=customers.id where invoice.date<'$date' group by invoice.date asc LIMIT 25 ")
+        $before=$db->query("select invoice.invoiceId,invoice.date,customers.customerName from invoice left JOIN customers on invoice.customerId=customers.id where invoice.date<'$date' group by invoice.date asc ")
             ->getResult();
-        $after=$db->query("select invoice.invoiceId,invoice.date,customers.customerName from invoice left JOIN customers on invoice.customerId=customers.id where invoice.date>$date group by invoice.date asc LIMIT 25 ")
+        $after=$db->query("select invoice.invoiceId,invoice.date,customers.customerName from invoice left JOIN customers on invoice.customerId=customers.id where invoice.date>$date group by invoice.date asc ")
             ->getResult();
 		//print_r($items);return;
 		if(empty($items)){

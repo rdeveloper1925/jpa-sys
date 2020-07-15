@@ -27,6 +27,7 @@
                                 <th>Part no</th>
                                 <th>Debit note no</th>
                                 <th>Amount</th>
+                                <th>Action</th>
                             </tr>
                             </thead>
                             <tfoot>
@@ -39,16 +40,27 @@
                                 <th>Part no</th>
                                 <th>Debit note no</th>
                                 <th>Amount</th>
+                                <th>Action</th>
                             </tr>
                             </tfoot>
                             <tbody>
+                            <?php if(!empty($ledger_item)): ?>
+                            <?php foreach($ledger_item as $item): ?>
                             <tr>
-                                <td>1</td>
-                                <td>1</td>
-                                <td>1</td>
-                                <td>1</td>
-                                <td>1</td>
+                                <td><?=$item->supply_date?></td>
+                                <td><?=$item->item?></td>
+                                <td><?=$item->quantity?></td>
+                                <td><?=$item->invoice_no?></td>
+                                <td><?=$item->cartype?></td>
+                                <td><?=$item->part_no?></td>
+                                <td><?=$item->debit_note_no?></td>
+                                <td><?=$item->amount?></td>
+                                <td><a href="<?=base_url('suppliers/edit/'.$item->id)?>" class="btn btn-sm btn-warning">Edit</a>
+                                    <a href="<?=base_url('suppliers/delete/'.$item->id)?>" class="btn btn-sm btn-danger">Delete</a>
+                                </td>
                             </tr>
+                            <?php endforeach; ?>
+                            <?php endif; ?>
                             </tbody>
                         </table>
                     </div>

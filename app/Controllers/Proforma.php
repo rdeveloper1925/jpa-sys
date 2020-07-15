@@ -323,9 +323,9 @@ class Proforma extends BaseController {
             ->select('*')->join('proforma','proforma.customerId=customers.id','inner')
             ->getWhere(['invoiceId'=>$id])->getResult('object')[0];
         $date=date('Y-m-d',strtotime($custData->date));
-        $before=$db->query("select proforma.invoiceId,proforma.date,customers.customerName from proforma left JOIN customers on proforma.customerId=customers.id where proforma.date<'$date' group by proforma.date asc LIMIT 25 ")
+        $before=$db->query("select proforma.invoiceId,proforma.date,customers.customerName from proforma left JOIN customers on proforma.customerId=customers.id where proforma.date<'$date' group by proforma.date asc ")
             ->getResult();
-        $after=$db->query("select proforma.invoiceId,proforma.date,customers.customerName from proforma left JOIN customers on proforma.customerId=customers.id where proforma.date>$date group by proforma.date asc LIMIT 25 ")
+        $after=$db->query("select proforma.invoiceId,proforma.date,customers.customerName from proforma left JOIN customers on proforma.customerId=customers.id where proforma.date>$date group by proforma.date asc ")
             ->getResult();
         //print_r($before);return;
         if(empty($items)){
