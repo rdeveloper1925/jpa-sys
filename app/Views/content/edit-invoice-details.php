@@ -15,36 +15,33 @@
                         </div>
                         <div class="form-group col-md-4">
                             <label for="">Customer Name:</label>
-                            <select class="form-control" name="customerId" id="customerSelect" onchange="fetchCustomers()">
-                                <?php foreach($customers as $c): ?>
-                                    <option value="<?=$c->id?>"><?=$c->customerName?></option>
-                                <?php endforeach; ?>
-                            </select>
+                            <input type="text" class="form-control" name="customerName" value="<?=$customerData->customerName?>" />
+                            <input type="hidden" name="custId" value="<?=$customerData->id?>" />
                             <input type="hidden" name="customerId2" id="customerIdd"/>
                         </div>
                         <div class="form-group col-4">
                             <label for="">Contact Person: </label>
-                            <input type="text" class="form-control" id="contactPerson" required/>
+                            <input type="text" class="form-control" id="contactPerson" value="<?=$customerData->contactPerson?>" required/>
                         </div>
                         <div class="form-group col-4">
                             <label for="">Address: </label>
-                            <input type="text" class="form-control" id="address" required/>
+                            <input type="text" value="<?=$customerData->address?>" class="form-control" id="address" required/>
                         </div>
                         <div class="form-group col-4">
                             <label for="">Area Country: </label>
-                            <input type="text" class="form-control" id="areaCountry" required/>
+                            <input type="text" class="form-control" value="<?=$customerData->areaCountry?>" id="areaCountry" required/>
                         </div>
                         <div class="form-group col-4">
                             <label for="">Phone: </label>
-                            <input type="text" class="form-control" id="phone" required/>
+                            <input type="text" class="form-control" value="<?=$customerData->phone?>" id="phone" required/>
                         </div>
                         <div class="form-group col-4">
                             <label for="">Email: </label>
-                            <input type="text" class="form-control" id="email" required>
+                            <input type="text" class="form-control" value="<?=$customerData->email?>" id="email" required>
                         </div>
                         <div class="form-group col-4">
                             <label for="">Customer Tin No: </label>
-                            <input type="tel" pattern='[0-9]*' class="form-control" id="tinNo" required>
+                            <input type="tel" pattern='[0-9]*' class="form-control" value="<?=$customerData->tinNo?>" id="tinNo" required>
                         </div>
                         <!-- this is the breaking point -->
                         <div class="col-12">
@@ -62,7 +59,7 @@
                         <hr>
                         <div class="form-group col-4">
                             <label for="">Date: </label>
-                            <input type="date" class="form-control" name="date" value="<?=$invoice->date?>" required>
+                            <input type="date" class="form-control" name="date" value="<?=date('Y-m-d',strtotime($invoice->date))?>" required>
                         </div>
                         <div class="form-group col-4">
                             <label for="">Currency: </label>

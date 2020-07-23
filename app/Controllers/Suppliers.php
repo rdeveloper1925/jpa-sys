@@ -30,8 +30,10 @@ class Suppliers extends BaseController {
     public function view_ledger($id){
         $db=Database::connect();
         $supplier=$db->table('suppliers')->getWhere(['id'=>$id])->getResult('object')[0];
+        $stock=$db->table('inventory')->get()->getResult('object');
         $result=$db->table('supplier_ledgers')->getWhere(['supplier_id'=>$id])->getResult('object');
         $data['ledger_items']=$result;
+        $data['stock']=$stock;
         $data['supplier']=$supplier;
         $data['title']='Supplier Ledger: '.$supplier->supplier_name;
         return view('suppliers/view_ledger',$data);
@@ -55,5 +57,26 @@ class Suppliers extends BaseController {
         );
         $db->table('suppliers')->update($supplier,['id'=>$id]);
         return redirect()->to(base_url('suppliers/'));
+    }
+
+    public function save_supplied_item(){
+        $db=Database::connect();
+        $supplied_item=array(
+            'supply_date'=>$this->request->getVar('date'),
+            'item'=>$this->request->getVar('itemSupplied'),
+            'invoice_no'=>$this->request->getVar('invoiceNo'),
+            'amount'=>$this->request->getVar('quantity')*$this->request->getVar('unitCost'),
+            'cartype'=>$this->request->getVar('carType'),
+            'supplier_id'=>$this->request->getVar('supplier_id'),
+            'part_no'=>$this->request->getVar('partNo'),
+            'debit_note_no'=>$this->request->getVar('debitNoteNo'),
+            'quantity'=>$this->request->getVar('quantity'),
+        );
+        $db->table('supplier_ledgers')->insert($supplied_item);
+        return redirect()->to(base_url('suppliers/view_ledger/'.$this->request->getVar('supplier_id')));
+    }
+
+    public function edit_item($id){
+        $db=Database::connect();
     }
 }

@@ -21,7 +21,7 @@ class Inventory extends BaseController{
         $l=$session->get('accessLevel');
         if($l=='ADMINISTRATOR'||$l=='STORE-KEEPER') {
             $inventory=array(
-                'id'=>null,
+                //'id'=>null,
                 'dateIn'=>$this->request->getVar('dateIn'),
                 'partName'=>$this->request->getVar('partName'),
                 'partNo'=>$this->request->getVar('partNo'),

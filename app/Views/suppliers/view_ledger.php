@@ -44,10 +44,10 @@
                             </tr>
                             </tfoot>
                             <tbody>
-                            <?php if(!empty($ledger_item)): ?>
-                            <?php foreach($ledger_item as $item): ?>
+                            <?php if(!empty($ledger_items)): ?>
+                            <?php foreach($ledger_items as $item): ?>
                             <tr>
-                                <td><?=$item->supply_date?></td>
+                                <td><?=date('Y-m-d',strtotime($item->supply_date))?></td>
                                 <td><?=$item->item?></td>
                                 <td><?=$item->quantity?></td>
                                 <td><?=$item->invoice_no?></td>
@@ -55,8 +55,8 @@
                                 <td><?=$item->part_no?></td>
                                 <td><?=$item->debit_note_no?></td>
                                 <td><?=$item->amount?></td>
-                                <td><a href="<?=base_url('suppliers/edit/'.$item->id)?>" class="btn btn-sm btn-warning">Edit</a>
-                                    <a href="<?=base_url('suppliers/delete/'.$item->id)?>" class="btn btn-sm btn-danger">Delete</a>
+                                <td><a href="<?=base_url('suppliers/edit_item/'.$item->id)?>" class="btn btn-sm btn-warning">Edit</a>
+                                    <a href="<?=base_url('suppliers/delete_item/'.$item->id)?>" class="btn btn-sm btn-danger">Delete</a>
                                 </td>
                             </tr>
                             <?php endforeach; ?>
@@ -92,28 +92,43 @@
                         </div>
                         <div class="form-group col-6">
                             <label for="date">Item Supplied:</label>
-                            <input type="text" class="form-control" required name="item"/>
+                            <input list="browsers" class="form-control" name="itemSupplied" id="inventoryItem">
+                            <datalist id="browsers" >
+                                <?php foreach ($stock as $s): ?>
+                                <option value="<?=$s->partName?>">
+                                    <?php endforeach; ?>
+                            </datalist>
                         </div>
                         <div class="form-group col-6">
                             <label for="date">Invoice No:</label>
-                            <input type="date" class="form-control" required name="invoiceNo"/>
+                            <input type="text" class="form-control" required name="invoiceNo"/>
                         </div>
                         <div class="form-group col-6">
                             <label for="date">Quantity:</label>
                             <input type="text" class="form-control" required name="quantity"/>
                         </div>
                         <div class="form-group col-6">
-                            <label for="date">Quantity:</label>
-                            <input type="text" class="form-control" required name="quantity"/>
+                            <label for="date">Car Type:</label>
+                            <input type="text" class="form-control" required name="carType"/>
+                        </div>
+                        <div class="form-group col-6">
+                            <label for="date">Unit cost:</label>
+                            <input type="number" step="0.1" class="form-control" required name="unitCost"/>
+                        </div>
+                        <div class="form-group col-6">
+                            <label for="date">Part no:</label>
+                            <input type="text" class="form-control" required name="partNo"/>
+                        </div>
+                        <div class="form-group col-6">
+                            <label for="date">Debit Note no:</label>
+                            <input type="text" class="form-control"  name="debitNoteNo"/>
+                            <input type="hidden" name="supplier_id" value="<?=$supplier->id?>">
                         </div>
                     </div>
-
-
-                </form>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-primary">Save</button>
+                <button type="submit" class="btn btn-primary">Save</button>
+                </form>
             </div>
         </div>
     </div>

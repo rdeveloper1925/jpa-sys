@@ -26,19 +26,14 @@ class Invoices extends BaseController {
         if($l=='ADMINISTRATOR'||$l=='SUPERVISOR'||$l=='ACCOUNTANT'||$l=='RECEPTIONIST'||$l=='MARKETEER'||$l=='PROCUREMENT') {
             $db=Database::connect();
             $row=$db->table('invoice')->getWhere(['invoiceId'=>$id]);
-            $customers=$db->table('customers')->getWhere(['deleted'=>0])->getResult('object');
-            //$stock=$db->table('inventory')->get()->getResult('object');
             if (count($row->getResultArray()) != 1) {
                 return view('error', ['title'=>"Error", 'message'=>"Sorry, We couldn't find the invoice Id"]);
             }
-            /*$items=$db->table('invoiceitems2')
-                ->select('*')->getWhere(['invoiceId'=>$id])->getResult('object');
-            $units=$db->table('units')->get()->getResult('object');
-            $data['units']=$units;*/
+            $customerId=$row->getResult()[0]->customerId;
+            $customerData=$db->table('customers')->getWhere(['id'=>$customerId])->getResult();
+            $data['customerData']=$customerData[0];
             $data['invoice_no']=$id;
             $data['invoice']=$row->getResult('object')[0];
-            //$data['items']=$items;
-            $data['customers']=$customers;
             $data['title']="Edit Invoice Details. (" . $id . ")";
             return view('content/edit-invoice-details', $data);
         }

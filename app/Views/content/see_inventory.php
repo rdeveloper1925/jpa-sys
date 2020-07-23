@@ -1,6 +1,9 @@
 <?php $this->extend('layouts/app') ?>
 <?php $this->section('content'); ?>
 <div class="row">
+    <div class="col-12 pb-3">
+        <a href="<?=base_url('inventory')?>" class="btn btn-warning btn-sm">Back</a>
+    </div>
     <div class="col-md-12 container">
         <table width="100%" class="table table-bordered">
             <tr>
@@ -51,7 +54,7 @@
             </div>
             <div class="card-body">
                 <div class="table-responsive">
-                    <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                    <table class="table table-sm table-bordered" width="100%" cellspacing="0">
                         <thead>
                         <tr>
                             <th>Item Name</th>
