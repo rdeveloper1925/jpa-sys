@@ -194,10 +194,9 @@ class Proforma extends BaseController {
             if (count($row->getResultArray()) != 1) {
                 return view('error', ['title'=>"Error", 'message'=>"Sorry, We couldn't find the invoice Id"]);
             }
-            /*$items=$db->table('proformaitems2')
-                ->select('*')->getWhere(['invoiceId'=>$id])->getResult('object');
-            $units=$db->table('units')->get()->getResult('object');
-            $data['units']=$units;*/
+            $customerId=$row->getResult()[0]->customerId;
+            $customerData=$db->table('customers')->getWhere(['id'=>$customerId])->getResult();
+            $data['customerData']=$customerData[0];
             $data['invoice_no']=$id;
             $data['invoice']=$row->getResult('object')[0];
             $data['customers']=$customers;

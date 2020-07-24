@@ -21,11 +21,11 @@
                     </div>
                     <div class="form-group col-md-6">
                         <label for="">Quantity In Store:</label>
-                        <input type="number" step=0.01 class="form-control " name="quantityInStore" required />
+                        <input type="number" step=0.01 class="form-control " value="<?=$item->quantityInStore?>" name="quantityInStore" required />
                     </div>
                     <div class="form-group col-md-6">
                         <label for="">Balance In Store:</label>
-                        <input type="number" step=0.01 class="form-control " name="balanceInStore" required />
+                        <input type="number" step=0.01 class="form-control " name="balanceInStore" value="<?=$item->balanceInStore?>" required />
                     </div>
                     <div class="form-group col-md-6">
                         <label for="">Supplied By:</label>

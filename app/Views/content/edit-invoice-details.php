@@ -21,27 +21,27 @@
                         </div>
                         <div class="form-group col-4">
                             <label for="">Contact Person: </label>
-                            <input type="text" class="form-control" id="contactPerson" value="<?=$customerData->contactPerson?>" required/>
+                            <input type="text" class="form-control" name="contactPerson" value="<?=$customerData->contactPerson?>" required/>
                         </div>
                         <div class="form-group col-4">
                             <label for="">Address: </label>
-                            <input type="text" value="<?=$customerData->address?>" class="form-control" id="address" required/>
+                            <input type="text" value="<?=$customerData->address?>" class="form-control" name="address" required/>
                         </div>
                         <div class="form-group col-4">
                             <label for="">Area Country: </label>
-                            <input type="text" class="form-control" value="<?=$customerData->areaCountry?>" id="areaCountry" required/>
+                            <input type="text" class="form-control" value="<?=$customerData->areaCountry?>" name="areaCountry" required/>
                         </div>
                         <div class="form-group col-4">
                             <label for="">Phone: </label>
-                            <input type="text" class="form-control" value="<?=$customerData->phone?>" id="phone" required/>
+                            <input type="text" class="form-control" value="<?=$customerData->phone?>" name="phone" required/>
                         </div>
                         <div class="form-group col-4">
                             <label for="">Email: </label>
-                            <input type="text" class="form-control" value="<?=$customerData->email?>" id="email" required>
+                            <input type="text" class="form-control" value="<?=$customerData->email?>" name="email" required>
                         </div>
                         <div class="form-group col-4">
                             <label for="">Customer Tin No: </label>
-                            <input type="tel" pattern='[0-9]*' class="form-control" value="<?=$customerData->tinNo?>" id="tinNo" required>
+                            <input type="tel" pattern='[0-9]*' class="form-control" value="<?=$customerData->tinNo?>" name="tinNo" required>
                         </div>
                         <!-- this is the breaking point -->
                         <div class="col-12">
