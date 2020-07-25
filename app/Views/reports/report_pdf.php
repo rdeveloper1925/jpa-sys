@@ -116,7 +116,7 @@
                 <td><?=date('d-M-Y',strtotime($d['DATE']))?></td>
                 <td style="color: black; text-align: center;"><?=number_format($d['vat'],2,'.',',')?></td>
                 <?php if ($d['sum']>=1000000): ?>
-                    <td style="color: black; text-align: center;"><?=number_format($d['sum']*(6/100),'.',',')?></td>
+                    <td style="color: black; text-align: center;"><?=number_format($d['sum']*(6/100),2,'.',',')?></td>
                 <?php else: ?>
                     <td style="color: black; text-align: center;">0</td>
                 <?php endif; ?>

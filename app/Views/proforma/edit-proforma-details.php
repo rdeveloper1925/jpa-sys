@@ -54,7 +54,7 @@
 
                         <div class="form-group col-4">
                             <label for="">Proforma No.</label>
-                            <input type="text" class="form-control" value="<?=$invoice->invoiceId?>" disabled >
+                            <input type="text" class="form-control" name="invoiceId" value="<?=$invoice->invoiceId?>" disabled >
                         </div>
                         <hr>
                         <div class="form-group col-4">

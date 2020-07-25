@@ -7,7 +7,7 @@
                 <h6 class="m-0 font-weight-bold text-primary">Generated Report</h6>
             </div>
             <div class="card-body">
-                <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                <table class="table table-bordered table-sm" width="100%" cellspacing="0">
                     <thead>
                     <tr>
                         <th>Invoice no</th>
@@ -35,11 +35,11 @@
                         <tr>
                             <td><?=$d['ID']?></td>
                             <td><?=$d['CUSTOMER_NAME']?></td>
-                            <td><?=$d['DATE']?></td>
+                            <td><?=date('Y-M-d',strtotime($d['DATE']))?></td>
                             <td><?=$d['vat']?></td>
                             <td><?=$d['NARRATION']?></td>
                             <td><?=$d['LPO']?></td>
-                            <td><?=$d['sum']['SM']?></td>
+                            <td><?=$d['sum']?></td>
                         </tr>
                     <?php endforeach; ?>
                     </tbody>

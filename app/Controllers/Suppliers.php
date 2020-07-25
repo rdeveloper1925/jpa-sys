@@ -66,6 +66,7 @@ class Suppliers extends BaseController {
             'item'=>$this->request->getVar('itemSupplied'),
             'invoice_no'=>$this->request->getVar('invoiceNo'),
             'amount'=>$this->request->getVar('quantity')*$this->request->getVar('unitCost'),
+            'unitCost'=>$this->request->getVar('unitCost'),
             'cartype'=>$this->request->getVar('carType'),
             'supplier_id'=>$this->request->getVar('supplier_id'),
             'part_no'=>$this->request->getVar('partNo'),
@@ -78,5 +79,32 @@ class Suppliers extends BaseController {
 
     public function edit_item($id){
         $db=Database::connect();
+        $item=$db->table('supplier_ledgers')->getWhere(['id'=>$id])->getResult()[0];
+        $stock=$db->table('inventory')->get()->getResult('object');
+        $data['item']=$item;
+        $data['stock']=$stock;
+        $data['title']="Edit Ledger Item";
+        $data['item_id']=$id;
+        return view('suppliers/edit_item',$data);
+    }
+
+    public function save_edited_item($id){
+        $db=Database::connect();
+        $supplierId=$this->request->getVar('supplier_id');
+        $supplied_item=array(
+            'supply_date'=>$this->request->getVar('date'),
+            'item'=>$this->request->getVar('itemSupplied'),
+            'invoice_no'=>$this->request->getVar('invoiceNo'),
+            'amount'=>$this->request->getVar('quantity')*$this->request->getVar('unitCost'),
+            'unitCost'=>$this->request->getVar('unitCost'),
+            'cartype'=>$this->request->getVar('carType'),
+            'supplier_id'=>$this->request->getVar('supplier_id'),
+            'part_no'=>$this->request->getVar('partNo'),
+            'debit_note_no'=>$this->request->getVar('debitNoteNo'),
+            'quantity'=>$this->request->getVar('quantity'),
+            'settled'=>$this->request->getVar('settled')
+        );
+        $db->table('supplier_ledgers')->update($supplied_item,['id'=>$id]);
+        return redirect()->to(base_url('suppliers/view_ledger/'.$supplierId));
     }
 }

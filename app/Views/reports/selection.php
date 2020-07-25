@@ -22,7 +22,7 @@
                        <select name="reportType" class="form-control" required>
                            <option>Proforma Report</option>
                            <option>Tax Invoice Report</option>
-                           <option>Supplier Report</option>
+                           <!--<option>Supplier Report</option> -->
                        </select>
                    </div>
                    <div class="form-group">

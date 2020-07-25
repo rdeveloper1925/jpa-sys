@@ -92,8 +92,10 @@ class Invoices extends BaseController {
 	}
 
 	public function existing($invoiceId){
+	    $db=Database::connect();
         $data['title']="Use Exising Proforma Items";
         $data['taxId']=$invoiceId;
+        $data['stock']=$db->table('inventory')->get()->getResult('object');
         return view('content/existing',$data);
     }
 
@@ -226,17 +228,10 @@ class Invoices extends BaseController {
             'preparedBy'=>\Config\Services::session()->get('id'),
             'narration'=>$this->request->getVar('narration')
         );
-        //return print_r($invoice);
         $db->table('customers')->update($customer,['id'=>$custId]);
         $db->table('invoice')->update($invoice,['invoiceId'=>$this->request->getVar('invoiceId')]);
-        //if($db->affectedRows()==1){
-            //$invoiceId=$db->insertID();
-            return redirect()->to(base_url('invoices'));
-        //}else{
-            echo "Input failed";
-            return null;
-        //}
-        return redirect()->to(base_url('pages/error'));
+
+        return redirect()->to(base_url('invoices'));
     }
 
 	public function invoice_items($id){

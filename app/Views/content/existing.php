@@ -104,7 +104,11 @@
                     </button>
             </div>
             <div class="modal-body">
+                <?php if(isset($proforma->invoiceId)): ?>
                 <form action="<?=base_url('invoices/new_temp_item/'.$proforma->invoiceId)?>" method="post">
+                    <?php else: ?>
+                    <form>
+                        <?php endif; ?>
                     <div class="form-group">
                         <label for="">Part Name:</label>
                         <input list="browsers" class="form-control" name="inventoryItem">

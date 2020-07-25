@@ -116,13 +116,19 @@ class Proforma extends BaseController {
     }
 
     public function save_detail_edits(){
-        //alter table invoice AUTO_INCREMENT=21324
-        //return print_r($this->request->getVar());
         $db=Database::connect();
-        //$db->table('proformainvoicenumbers')->insert(['status'=>1]);
-        //$proformaId=$db->insertID();
+        $custId=$this->request->getVar('custId');
+        $customer=array(
+            'contactPerson'=>$this->request->getVar('contactPerson'),
+            'customerName'=>$this->request->getVar('customerName'),
+            'address'=>$this->request->getVar('address'),
+            'areaCountry'=>$this->request->getVar('areaCountry'),
+            'phone'=>$this->request->getVar('phone'),
+            'email'=>$this->request->getVar('email'),
+            'tinNo'=>$this->request->getVar('tinNo')
+        );
+
         $invoice=array(
-            'customerId'=>$this->request->getVar('customerId'),
             'date'=>$this->request->getVar('date'),
             'currency'=>strtoupper($this->request->getVar('currency')),
             'modeOfPayment'=>$this->request->getVar('modeOfPayment'),
@@ -132,27 +138,12 @@ class Proforma extends BaseController {
             'mileage'=>$this->request->getVar('mileage'),
             'preparedBy'=>\Config\Services::session()->get('id'),
             'narration'=>$this->request->getVar('narration')
-        );
-        $customer=$db->table('customers')->getWhere(['id'=>$this->request->getVar('customerId')])->getResult('object')[0];
-        //print_r($customer);
-        $custDetails=array(
-            'contactPerson'=>$customer->contactPerson,
-            'address'=>$customer->address,
-            'areaCountry'=>$customer->areaCountry,
-            'phone'=>$customer->phone,
-            'email'=>$customer->email,
-            'tinNo'=>$customer->tinNo
-        );
-        $db->table('customers')->update($custDetails,['id'=>$this->request->getVar('customerId')]);
+        );//return print_r($this->request->getVar('invoice_no'));
+        $db->table('customers')->update($customer,['id'=>$custId]);
         $db->table('proforma')->update($invoice,['invoiceId'=>$this->request->getVar('invoice_no')]);
-        if($db->affectedRows()==1){
-            //$invoiceId=$db->insertID();
+
             return redirect()->to(base_url('proforma'));
-        }else{
-            echo "Input failed";
-            return null;
-        }
-        return redirect()->to(base_url('pages/error'));
+
     }
 
     public function invoice_items($id){

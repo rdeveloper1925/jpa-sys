@@ -27,6 +27,7 @@
                                 <th>Part no</th>
                                 <th>Debit note no</th>
                                 <th>Amount</th>
+                                <th>Settled</th>
                                 <th>Action</th>
                             </tr>
                             </thead>
@@ -40,6 +41,7 @@
                                 <th>Part no</th>
                                 <th>Debit note no</th>
                                 <th>Amount</th>
+                                <th>Settled</th>
                                 <th>Action</th>
                             </tr>
                             </tfoot>
@@ -55,6 +57,7 @@
                                 <td><?=$item->part_no?></td>
                                 <td><?=$item->debit_note_no?></td>
                                 <td><?=$item->amount?></td>
+                                <td><?=$item->settled?></td>
                                 <td><a href="<?=base_url('suppliers/edit_item/'.$item->id)?>" class="btn btn-sm btn-warning">Edit</a>
                                     <a href="<?=base_url('suppliers/delete_item/'.$item->id)?>" class="btn btn-sm btn-danger">Delete</a>
                                 </td>
@@ -69,9 +72,6 @@
         </div>
     </div>
 <!-- Button trigger modal -->
-<button type="button" class="btn btn-primary btn-md" data-toggle="modal" data-target="#modelId">
-  Launch
-</button>
 
 <!-- Modal -->
 <div class="modal fade" id="modelId2" tabindex="-1" role="dialog" aria-labelledby="modelTitleId" aria-hidden="true">

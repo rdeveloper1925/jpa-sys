@@ -58,7 +58,7 @@ class Reports extends BaseController {
                 $sum=$db->query("SELECT SUM(TOTAL) AS SM FROM PROFORMAITEMS2 WHERE INVOICEID='$id'")->getResultArray()[0];
                 $vat=((18/100)*$sum['SM']);
                 $r[$key]['vat']=$vat;
-                $r[$key]['sum']=$sum;
+                $r[$key]['sum']=$sum['SM']+$vat;
             }
             $data['data']=$r;
             $data['ttl']='PROFORMA INVOICE REPORT';
@@ -98,7 +98,7 @@ class Reports extends BaseController {
                 $sum=$db->query("SELECT SUM(TOTAL) AS SM FROM INVOICEITEMS2 WHERE INVOICEID='$id'")->getResultArray()[0];
                 $vat=((18/100)*$sum['SM']);
                 $r[$key]['vat']=$vat;
-                $r[$key]['sum']=$sum;
+                $r[$key]['sum']=$sum['SM']+$vat;
             }
             $data['data']=$r;
             $data['ttl']='TAX INVOICE REPORT';
@@ -170,7 +170,7 @@ class Reports extends BaseController {
         $sheet->setCellValue('H2','VALUE');
         $sheet->getColumnDimension('H')->getAutoSize();
         $frm = "A1"; // or any value
-        $t = "G2"; // or any value
+        $t = "H2"; // or any value
         $spreadsheet->getActiveSheet()->getStyle("$frm:$t")->getFont()->setBold( true );
         foreach($r as $key=>$rr){
             $id=$rr['ID'];
@@ -180,7 +180,7 @@ class Reports extends BaseController {
             $r[$key]['sum']=$sum['SM'];
             $sheet->setCellValue('A'.($key+3),$rr['ID']);
             $sheet->setCellValue('B'.($key+3),$rr['CUSTOMER_NAME']);
-            $sheet->setCellValue('C'.($key+3),$rr['DATE']);
+            $sheet->setCellValue('C'.($key+3),date('Y-M-d',strtotime($rr['DATE'])));
             $sheet->setCellValue('D'.($key+3),$vat);
             if ($sum['SM']>=1000000){
                 $wtax=(6/100)*$sum['SM'];
@@ -190,7 +190,7 @@ class Reports extends BaseController {
             }
             $sheet->setCellValue('F'.($key+3),$rr['NARRATION']);
             $sheet->setCellValue('G'.($key+3),$rr['LPO']);
-            $sheet->setCellValue('H'.($key+3),$sum['SM']);
+            $sheet->setCellValue('H'.($key+3),$sum['SM']+$vat);
         }
         $writer=new Xlsx($spreadsheet);
         $filename="REPORT.xlsx";
@@ -208,9 +208,9 @@ class Reports extends BaseController {
     public function tax_excel($from,$to,$customer){
         $db=Database::connect();
         if($customer=='All'){
-            $r=$db->query("SELECT invoice.INVOICEID AS ID,invoice.DATE AS DATE,invoice.carRegNo AS REG,CUSTOMERS.CUSTOMERNAME AS CUSTOMER_NAME,invoice.lpoNo AS LPO,invoice.narration AS NARRATION,invoice.CURRENCY AS CURRENCY FROM invoice LEFT JOIN CUSTOMERS ON invoice.customerId=customers.id WHERE invoice.DATE BETWEEN '$from' and '$to'")->getResultArray();
+            $r=$db->query("SELECT INVOICE.INVOICEID AS ID,INVOICE.DATE AS DATE,INVOICE.carRegNo AS REG,CUSTOMERS.CUSTOMERNAME AS CUSTOMER_NAME,INVOICE.lpoNo AS LPO,INVOICE.narration AS NARRATION,INVOICE.CURRENCY AS CURRENCY FROM INVOICE LEFT JOIN CUSTOMERS ON INVOICE.customerId=customers.id WHERE INVOICE.DATE BETWEEN '$from' and '$to'")->getResultArray();
         }else{
-            $r=$db->query("SELECT invoice.INVOICEID AS ID,invoice.DATE AS DATE,invoice.carRegNo AS REG,CUSTOMERS.CUSTOMERNAME AS CUSTOMER_NAME,invoice.lpoNo AS LPO,invoice.narration AS NARRATION,invoice.CURRENCY AS CURRENCY FROM invoice LEFT JOIN CUSTOMERS ON invoice.customerId=customers.id WHERE invoice.DATE BETWEEN '$from' and '$to' AND invoice.customerId=$customer")->getResultArray();
+            $r=$db->query("SELECT INVOICE.INVOICEID AS ID,INVOICE.DATE AS DATE,INVOICE.carRegNo AS REG,CUSTOMERS.CUSTOMERNAME AS CUSTOMER_NAME,INVOICE.lpoNo AS LPO,INVOICE.narration AS NARRATION,INVOICE.CURRENCY AS CURRENCY FROM INVOICE LEFT JOIN CUSTOMERS ON INVOICE.customerId=customers.id WHERE INVOICE.DATE BETWEEN '$from' and '$to' AND INVOICE.customerId=$customer")->getResultArray();
         }
         $spreadsheet=new Spreadsheet();
         $spreadsheet->getActiveSheet()->getColumnDimension('A')->getAutoSize();
@@ -223,7 +223,6 @@ class Reports extends BaseController {
         $sheet->setCellValue('C2','DATE');
         $sheet->getColumnDimension('C')->getAutoSize();
         $sheet->setCellValue('D2','VAT');
-        $sheet->getColumnDimension('D')->getAutoSize();
         $sheet->setCellValue('E2','WITHHOLDING TAX');
         $sheet->getColumnDimension('E')->getAutoSize();
         $sheet->setCellValue('F2','NARRATION');
@@ -233,17 +232,17 @@ class Reports extends BaseController {
         $sheet->setCellValue('H2','VALUE');
         $sheet->getColumnDimension('H')->getAutoSize();
         $frm = "A1"; // or any value
-        $t = "G2"; // or any value
+        $t = "H2"; // or any value
         $spreadsheet->getActiveSheet()->getStyle("$frm:$t")->getFont()->setBold( true );
         foreach($r as $key=>$rr){
             $id=$rr['ID'];
-            $sum=$db->query("SELECT SUM(TOTAL) AS SM FROM PROFORMAITEMS2 WHERE INVOICEID='$id'")->getResultArray()[0];
+            $sum=$db->query("SELECT SUM(TOTAL) AS SM FROM invoiceitems2 WHERE INVOICEID='$id'")->getResultArray()[0];
             $vat=((18/100)*$sum['SM']);
             $r[$key]['vat']=$vat;
             $r[$key]['sum']=$sum['SM'];
             $sheet->setCellValue('A'.($key+3),$rr['ID']);
             $sheet->setCellValue('B'.($key+3),$rr['CUSTOMER_NAME']);
-            $sheet->setCellValue('C'.($key+3),$rr['DATE']);
+            $sheet->setCellValue('C'.($key+3),date('Y-M-d',strtotime($rr['DATE'])));
             $sheet->setCellValue('D'.($key+3),$vat);
             if ($sum['SM']>=1000000){
                 $wtax=(6/100)*$sum['SM'];
@@ -253,10 +252,10 @@ class Reports extends BaseController {
             }
             $sheet->setCellValue('F'.($key+3),$rr['NARRATION']);
             $sheet->setCellValue('G'.($key+3),$rr['LPO']);
-            $sheet->setCellValue('H'.($key+3),$sum['SM']);
+            $sheet->setCellValue('H'.($key+3),$sum['SM']+$vat);
         }
         $writer=new Xlsx($spreadsheet);
-        $filename="TAX INVOICE REPORT.xlsx";
+        $filename="REPORT.xlsx";
         try {
             header("Content-Disposition: attachment; filename=\"$filename\"");
             header("Content-Type: application/vnd.ms-excel");
