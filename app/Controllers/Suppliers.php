@@ -107,4 +107,102 @@ class Suppliers extends BaseController {
         $db->table('supplier_ledgers')->update($supplied_item,['id'=>$id]);
         return redirect()->to(base_url('suppliers/view_ledger/'.$supplierId));
     }
+
+    public function cheque_voucher(){
+        $db=Database::connect();
+        $suppliers=$db->table('suppliers')->get()->getResult();
+        $stock=$db->table('inventory')->get()->getResult();
+        $data['stock']=$stock;
+        $data['suppliers']=$suppliers;
+        $data['title']="New cheque voucher";
+        return view('suppliers/cheque_voucher',$data);
+    }
+
+    public function save_cheque_voucher(){
+        $voucher=array(
+            'name'=>$this->request->getVar('name'),
+            'supplier'=>$this->request->getVar('supplier'),
+            'address'=>$this->request->getVar('address'),
+            'chequeNo'=>$this->request->getVar('chequeNo'),
+            'maker'=>\CodeIgniter\Config\Services::session()->get('fullName'),
+            'date'=>$this->request->getVar('date'),
+            'passer'=>$this->request->getVar('passer'),
+            'authorizer'=>$this->request->getVar('authorizer'),
+            'receiver'=>$this->request->getVar('receiver')
+        );
+        //return print_r($voucher);
+        $db=Database::connect();
+        $db->table('cheque_voucher')->insert($voucher);
+        $voucher['id']=$db->insertID();
+        $data['suppliers']=$suppliers=$db->table('suppliers')->get()->getResult();
+        $data['title']="Add Voucher items";
+        $data['voucher']=$voucher;
+        //return print_r($voucher);
+        $data['voucherId']=$db->insertID();
+        return view('suppliers/cheque_voucher_items',$data);
+    }
+
+    public function save_voucher_item(){
+        $item=array(
+            'particulars'=>$this->request->getVar('particulars'),
+            'code'=>$this->request->getVar('code'),
+            'amount'=>$this->request->getVar('amount'),
+            'voucherId'=>$this->request->getVar('voucherId')
+        );
+        $db=Database::connect();
+        //return print_r($item);
+        $db->table('check_voucher_items')->insert($item);
+        $voucherId=$this->request->getVar('voucherId');
+        $data['voucherId']=$voucherId;
+        $data['suppliers']=$db->table('suppliers')->get()->getResult();
+        $data['title']="Add Voucher items";
+        $data['items']=$db->table('check_voucher_items')->getWhere(['voucherId'=>$voucherId])->getResult();
+        $data['voucher']=$db->table('cheque_voucher')->getWhere(['id'=>$voucherId])->getResultArray()[0];
+        $data['itemId']=$db->insertID();
+        return view('suppliers/cheque_voucher_items',$data);
+    }
+
+    public function delete_voucher_item($id,$voucherId){
+        $db=Database::connect();
+        $db->table('check_voucher_items')->delete(['id'=>$id]);
+        $data['voucherId']=$voucherId;
+        $data['suppliers']=$db->table('suppliers')->get()->getResult();
+        $data['title']="Add Voucher items";
+        $data['items']=$db->table('check_voucher_items')->getWhere(['voucherId'=>$voucherId])->getResult();
+        $data['voucher']=$db->table('cheque_voucher')->getWhere(['id'=>$voucherId])->getResultArray()[0];
+        $data['itemId']=$db->insertID();
+        return view('suppliers/cheque_voucher_items',$data);
+    }
+
+
+    public function generate_voucher($id){
+        $db=Database::connect();
+        $data['ttl']="CHEQUE VOUCHER";
+        $data['voucher']=$db->table('cheque_voucher')->getWhere(['id'=>$id])->getResultArray()[0];
+        $data['items']=$db->table('check_voucher_items')->getWhere(['voucherId'=>$id])->getResultArray();
+
+
+        $pdf=new Mpdf(['setAutoTopMargin' => 'pad']);
+        $pdf->SetWatermarkImage(base_url("assets/img/logo.png"),0.3,'F','F');
+        $pdf->SetHTMLFooter('<table width="100%" style="vertical-align: bottom; font-family: serif;font-size: 8pt; color: #000000; font-weight: bold; font-style: italic;">
+    								
+    									<tr>
+											<td width="33%">{DATE j-m-Y}</td>
+											<td width="33%" align="center">"Customer Satisfaction First"</td>
+											<td width="33%" align="center">Page: {PAGENO}/{nbpg}</td>
+    									</tr>
+									</table>');  // Note that the second parameter is optional : default = 'O' for ODD
+
+        $pdf->SetHTMLFooter('<table width="100%" style="vertical-align: bottom; font-family: serif;font-size: 8pt; color: #000000; font-weight: bold; font-style: italic;">
+										<tr>
+											<td width="33%"><span style="font-weight: bold; font-style: italic;">My document</span></td>
+											<td width="33%" align="center" style="font-weight: bold; font-style: italic;">{PAGENO}/{nbpg}</td>
+											<td width="33%" style="text-align: right; ">{DATE j-m-Y}</td>
+										</tr>
+									</table>', 'E');
+
+        $pdf->WriteHTML(view('suppliers/cheque_voucher_pdf',$data));
+        $pdf->Output("Invoice-".$id."-".date('Y-m-d').".pdf","D");
+        return ;
+    }
 }

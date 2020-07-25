@@ -1,10 +1,15 @@
 <?php $this->extend('layouts/app') ?>
 <?php $this->section('content'); ?>
 <div class="row">
-    <div class="col-md-12 col-sm-12">
+    <div class="col-md-6 col-sm-6">
         <button type="button" class="btn btn-success btn-md" data-toggle="modal" data-target="#modelId">
             New Supplier
         </button>
+    </div>
+    <div class="col-md-6 col-sm-6">
+        <a href="<?=base_url('suppliers/cheque_voucher')?>" class="btn btn-warning btn-md" >
+            New cheque voucher
+        </a>
     </div>
     <div class="col-12 mt-3">
         <div class="card shadow mb-4">
