@@ -91,6 +91,11 @@
                 <i class="fas fa-fw fa-list-ul"></i>
                 <span class="my-nav">Reports </span></a>
         </li>
+        <li class="nav-item">
+            <a class="nav-link" href="<?=base_url('suppliers/cheque_vouchers')?>">
+                <i class="fas fa-fw fa-list-ul"></i>
+                <span class="my-nav">Cheque Vouchers</span></a>
+        </li>
 
 		<?php if (!strcmp(\Config\Services::session()->get('accessLevel'),'ADMINISTRATOR')): ?>
 		<li class="nav-item">

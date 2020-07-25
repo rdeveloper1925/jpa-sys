@@ -52,15 +52,11 @@
                 <div style="color: black" class="head-data"><b>Email: jacitdgarage@gmail.com</b></div>
             </td>
             <td valign="top" style="width:35%; text-align: left">
-                <?php if($ttl=='PROFORMA INVOICE'): ?>
-                    <div class="head-data">PROFORMA NO.: <b><span style="color: black;"><?=$data->proformaId?></span></b></div>
-                <?php endif; ?>
-                <?php if($ttl=='TAX INVOICE'): ?>
-                    <div class="head-data">INVOICE NO.: <b><span style="color: black;"><?=$invoiceId?></span></b></div>
-                <?php endif; ?>
+                    <div class="head-data">VOUCHER NO.: <b><span style="color: black;"><?=$voucher->id?></span></b></div>
+
                 <div class="head-data">TIN NO.:<b><b><span style="color: black;">1000076645</span></b></div>
                 <div class="head-data">VAT.: <b><span style="color: black;padding-left:12px;"> 46371 - T</span></b></div>
-                <div class=" head-data" style="margin-top: 9px">DATE: <b><span style="color: black;padding-left:12px;"><?=date('d/M/Y',strtotime($data->date))?></span></div>
+                <div class=" head-data" style="margin-top: 9px">DATE: <b><span style="color: black;padding-left:12px;"><?=date('d/M/Y',strtotime($voucher->date))?></span></div>
             </td>
         </tr>
         <tr style="padding: 0px;margin: 0px">
@@ -75,42 +71,23 @@
     <table id='billship' style="padding-bottom:2px">
         <tr>
             <td>
-                <?php if($ttl=='TAX INVOICE'): ?>
-                    LPO NO.: <b><?=$data->lpoNo?></b><br>
-                <?php endif; ?>
-                CUSTOMER: <b><?=$data->customerName?></b><br>
-                ADDRESS: <b><?=$data->address?></b><br>
-                EMAIL: <b><?=$data->email?></b><br>
-                PHONE: <b><?php if($data->phone[0]!=='+'){echo '+';}?><?=$data->phone?></b><br>
-                CAR TYPE: <b><?=$data->carType?></b><br>
+                CUSTOMER NAME: <b><?=$voucher->name?></b><br>
+                COMPANY NAME: <b><?=$voucher->supplier?></b><br>
+                ADDRESS: <b><?=$voucher->address?></b><br>
+                CHEQUE NO: <b><?=$voucher->chequeNo?></b><br>
                 <br>
-            </td>
-            <td>
-                DATE: <b><?=date('d/M/Y',strtotime($data->date))?></b><br>
-                TIN NO.: <b><?=$data->tinNo?></b><br>
-                <?php
-                if($ttl=='PROFORMA INVOICE'){
-                    echo "PROFORMA NO.: <b>".$data->proformaId."</b><br>";
-                }else{
-                    echo "INVOICE NO.: <b>".$invoiceId."</b><br>";
-                }
-                ?>
-                CONTACT PERSON: <b><?=$data->contactPerson?></b><br>
-                MODE OF PAYMENT: <b><?=$data->modeOfPayment?></b><br>
-                MILEAGE: <b><?=$data->mileage?></b>
             </td>
         </tr>
         <tr>
-            <td colspan='2'>CAR REGISTRATION NO: <b><?=$data->carRegNo?></b></td>
+
         </tr>
     </table>
     <hr style="color:black">
     <table id="itemz" width="100%" style="width: 100%">
         <tr width="100%">
             <td style="color: black; text-align: center;width:8%"><strong>Sn.</strong></td>
-            <td style="color: black; text-align: center;"><strong>Description</strong></td>
-            <td style="color: black; text-align: center;"><strong>Quantity</strong></td>
-            <td style="color: black; text-align: center;"><strong>Rate</strong></td>; text-align: center;
+            <td style="color: black; text-align: center;"><strong>Particulars</strong></td>
+            <td style="color: black; text-align: center;"><strong>Code</strong></td>
             <td style="color: black; text-align: center;"><strong>Amount</strong></td>
         </tr>
         <tbody>
@@ -118,49 +95,46 @@
         <?php foreach ($items as $key=>$item) :?>
             <tr style="color: #000000;width=100%">
                 <td><?=$key+1?></td>
-                <td><?=$item['inventoryItem']?></td>
-                <td><?=$item['quantity']?> <?php echo ' ('.$item['units'].')'?></td>
-                <td style="text-align: right"><?=number_format($item['unitCost'])?></td>
-                <td style="text-align: right"><?=number_format($item['quantity']*$item['unitCost'])?></td>
-                <?php $grandTotal+=$item['quantity']*$item['unitCost']; ?>
+                <td><?=$item['particulars']?></td>
+                <td><?=$item['code']?> </td>
+                <td style="text-align: right"><?=number_format($item['amount'])?></td>
+                <?php $grandTotal+=$item['amount']; ?>
             </tr>
         <?php endforeach; ?>
         <tr>
-            <td class='ttl b-off' COLSPAN="4" style="text-align: right;color: black;"><strong> TOTAL: </strong></td>
-            <td style="padding-left:4px;text-align: right;color: black;"><strong><?=$data->currency?>. <?=number_format($grandTotal,2,'.',',')?></strong></td>
-        </tr>
-        <?php if(!empty($discount)): ?>
-            <tr>
-                <td colspan="4" style="text-align: right"><strong>LESS: DISCOUNT <?=$discount[0]['discount']?>%: </strong></td>
-                <?php $discount=($discount[0]['discount']/100)*$grandTotal; $grandTotal-=$discount;?>
-                <td  style="text-align: right"><strong>(<?=$data->currency?>. <?=number_format($discount,2,'.',',')?>)</strong></td>
-            </tr>
-        <?php endif; ?>
+            <td class='ttl b-off' COLSPAN="3" style="text-align: right;color: black;"><strong> TOTAL: </strong></td>
+            <td style="padding-left:4px;text-align: right;color: black;"><strong> <?=number_format($grandTotal,2,'.',',')?></strong></td>
+        </tr><!--
         <tr>
             <td class='ttl' colspan="4" style="text-align: right"><strong>ADD: VAT 18%: </strong></td>
             <?php $vat=0.18*$grandTotal; $grandestTotal+=$grandTotal+$vat; ?>
-            <td  style="text-align: right"><strong><?=$data->currency?>. <?=number_format($vat,2,'.',',')?></strong></td>
+            <td  style="text-align: right"><strong><?=number_format($vat,2,'.',',')?></strong></td>
         </tr>
         <tr>
-            <td class='ttl' colspan="4" style="text-align: right;color: black;"><strong>GRAND TOTAL: </strong></td>
-            <td style="text-align: right;color: black;padding-right: 0px;"><strong><?=$data->currency?>. <?=number_format($grandestTotal,2,'.',',')?></strong></td>
-        </tr>
+            <td class='ttl' colspan="3" style="text-align: right;color: black;"><strong>GRAND TOTAL: </strong></td>
+            <td style="text-align: right;color: black;padding-right: 0px;"><strong> <?=number_format($grandestTotal,2,'.',',')?></strong></td>
+        </tr>-->
         <tr>
-            <td colspan="5" style="text-align: right">
-                <strong><?=$words?></strong>
+            <td colspan="4" style="text-align: right">
                 <?php
                 $f=new NumberFormatter("en",NumberFormatter::SPELLOUT);
-                echo "<strong>".$f->format($grandestTotal )." shillings only</strong>";?></td>
+                echo "<strong>".$f->format($grandTotal )." shillings only</strong>";?></td>
         </tr>
         </tbody>
     </table>
     <hr style="color:black;">
     <table style="width: 40%">
         <tr>
-            <td valign="top" style="padding-bottom: 30px;">Sales Person Signature</td>
+            <td valign="top" style="padding-bottom: 30px;">Prepared By:</td>
+            <td valign="top" style="padding-bottom: 30px;">Passed By:</td>
+            <td valign="top" style="padding-bottom: 30px;">Authorized By:</td>
+            <td valign="top" style="padding-bottom: 30px;">Received/Posted/Delivered By:</td>
         </tr>
         <tr style="margin-top: 15px; padding-top: 30px">
-            <td>_______________________</td>
+            <td>_______________________<br><?=$voucher->maker?></td>
+            <td>_______________________<br><?=$voucher->passer?></td>
+            <td>_______________________<br><?=$voucher->authorizer?></td>
+            <td>_______________________<br><?=$voucher->receiver?></td>
         </tr>
     </table>
     <!--<div id='notes'>

@@ -174,11 +174,20 @@ class Suppliers extends BaseController {
         return view('suppliers/cheque_voucher_items',$data);
     }
 
+    public function view_cheque_voucher($id){
+        $db=Database::connect();
+        $data['suppliers']=$db->table('suppliers')->get()->getResult();
+        $data['title']="Add Voucher items";
+        $data['items']=$db->table('check_voucher_items')->getWhere(['voucherId'=>$id])->getResult();
+        $data['voucher']=$db->table('cheque_voucher')->getWhere(['id'=>$id])->getResultArray()[0];
+        return view('suppliers/cheque_voucher_items',$data);
+    }
+
 
     public function generate_voucher($id){
         $db=Database::connect();
         $data['ttl']="CHEQUE VOUCHER";
-        $data['voucher']=$db->table('cheque_voucher')->getWhere(['id'=>$id])->getResultArray()[0];
+        $data['voucher']=$db->table('cheque_voucher')->getWhere(['id'=>$id])->getResult()[0];
         $data['items']=$db->table('check_voucher_items')->getWhere(['voucherId'=>$id])->getResultArray();
 
 
@@ -202,7 +211,40 @@ class Suppliers extends BaseController {
 									</table>', 'E');
 
         $pdf->WriteHTML(view('suppliers/cheque_voucher_pdf',$data));
-        $pdf->Output("Invoice-".$id."-".date('Y-m-d').".pdf","D");
+        $pdf->Output("Cheque_voucher-".$id."-".date('Y-m-d').".pdf","D");
         return ;
+    }
+
+    public function cheque_vouchers(){
+        $db=Database::connect();
+        $data['title']="Cheque vouchers";
+        $data['vouchers']=$db->table('cheque_voucher')->get()->getResult();
+        return view('suppliers/cheque_vouchers',$data);
+    }
+
+    public function edit_cheque_voucher($id){
+        $db=Database::connect();
+        $data['title']="Edit Cheque Voucher";
+        $data['suppliers']=$db->table('suppliers')->get()->getResult();
+        $data['voucher']=$db->table('cheque_voucher')->getWhere(['id'=>$id])->getResult()[0];
+        return view('suppliers/edit_cheque_voucher',$data);
+    }
+
+    public function save_edit_cheque_voucher(){
+        $voucher=array(
+            'name'=>$this->request->getVar('name'),
+            'supplier'=>$this->request->getVar('supplier'),
+            'address'=>$this->request->getVar('address'),
+            'chequeNo'=>$this->request->getVar('chequeNo'),
+            //'maker'=>$this->request->getVar('maker'),
+            'date'=>$this->request->getVar('date'),
+            'passer'=>$this->request->getVar('passer'),
+            'authorizer'=>$this->request->getVar('authorizer'),
+            'receiver'=>$this->request->getVar('receiver')
+        );
+        $voucherId=$this->request->getVar('voucherId');
+        $db=Database::connect();
+        $db->table('cheque_voucher')->update($voucher,['id'=>$voucherId]);
+        return redirect()->to(base_url('suppliers/cheque_vouchers'));
     }
 }
