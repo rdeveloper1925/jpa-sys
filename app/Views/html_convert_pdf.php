@@ -49,7 +49,7 @@
 				<div style="color: black" class="head-data"><b>P. O. BOX 33246</b></div>
 				<div style="color: black" class="head-data"><b>Kampala Uganda</b></div>
 				<div style="color: black" class="head-data"><b>Tel: 0392-940769</b></div>
-				<div style="color: black" class="head-data"><b>Email: jacitdgarage@gmail.com</b></div>
+				<div style="color: black" class="head-data"><b>Email: jacltdgarage@gmail.com</b></div>
 			</td>
 			<td valign="top" style="width:35%; text-align: left">
 				<?php if($ttl=='PROFORMA INVOICE'): ?>

@@ -124,7 +124,7 @@ class Inventory extends BaseController{
         if($l=='ADMINISTRATOR'||$l=='STORE-KEEPER') {
             $db=Database::connect();
             $item=$db->table('inventory')->getWhere(['id'=>$id])->getResult('object');
-            $log=$db->table('stockTracker')->select('inventory.partName,stockTracker.quantityBefore,stockTracker.stockAction,stockTracker.quantity,stockTracker.quantityAfter,stockTracker.date,users.fullName')
+            $log=$db->table('stockTracker')->select('inventory.partName,stockTracker.mechanic,stockTracker.carType,stockTracker.quantityBefore,stockTracker.stockAction,stockTracker.quantity,stockTracker.quantityAfter,stockTracker.date,users.fullName')
                 ->join('inventory', 'stocktracker.itemId=inventory.id', 'inner')
                 ->join('users', 'stockTracker.doneBy=users.id', 'inner')
                 ->orderBy('date', 'DESC')->getWhere(['itemId'=>$id])->getResult('object');
@@ -143,19 +143,21 @@ class Inventory extends BaseController{
             $db=Database::connect();
             $rs=$db->table('inventory')->getWhere(['id'=>$id])->getResult('object')[0];
             $oldqty=$rs->quantityInStore;
-            $oldbal=$rs->balanceInStore;
+            //$oldbal=$rs->balanceInStore;
+            $oldbal=$this->request->getVar('balanceBefore');
 
             $restock=array(
-                'quantityInStore'=>$oldqty + $this->request->getVar('quantity'),
+                'quantityInStore'=>$oldbal + $this->request->getVar('quantity'),
                 'balanceInStore'=>$oldbal + $this->request->getVar('quantity')
             );
             $db->table('inventory')->update($restock, ['id'=>$id]);
             $track=array(
                 'itemId'=>$id,
                 'stockAction'=>'Re-Stock',
-                'quantityBefore'=>$oldqty,
+                'quantityBefore'=>$oldbal,
                 'quantity'=>$this->request->getVar('quantity'),
-                'quantityAfter'=>$oldqty + $this->request->getVar('quantity'),
+                'carType'=>$this->request->getVar('carType'),
+                'quantityAfter'=>$oldbal + $this->request->getVar('quantity'),
                 'date'=>date('Y-m-d H:i:s'),
                 'doneBy'=>Services::session()->get('id')
             );
@@ -198,16 +200,21 @@ class Inventory extends BaseController{
         if($l=='ADMINISTRATOR'||$l=='STORE-KEEPER') {
             $db=Database::connect();
             $rs=$db->table('inventory')->getWhere(['id'=>$id])->getResult('object')[0];
-            $oldqty=$rs->quantityInStore;
+            $oldqty=$rs->balanceInStore;
             $adjustment=array(
-                'quantityInStore'=>$this->request->getVar('qtyInStore'),
+                'quantityInStore'=>$oldqty-$this->request->getVar('qtyInStore'),
                 'balanceInStore'=>$oldqty-$this->request->getVar('quantity')
             );
+            if(($oldqty-$this->request->getVar('quantity'))<0){
+                return redirect()->to(base_url('inventory/see/' . $id));
+            }
             $db->table('inventory')->update($adjustment, ['id'=>$id]);
             $track=array(
                 'itemId'=>$id,
                 'stockAction'=>'Sale of Stock',
                 'quantityBefore'=>$oldqty,
+                'mechanic'=>$this->request->getVar('mechanic'),
+                'carType'=>$this->request->getVar('carType'),
                 'quantity'=>$this->request->getVar('quantity'),
                 'quantityAfter'=>$oldqty-$this->request->getVar('quantity'),
                 'date'=>date('Y-m-d H:i:s'),

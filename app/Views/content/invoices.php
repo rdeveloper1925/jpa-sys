@@ -11,7 +11,7 @@
             </div>
             <div class="card-body">
               <div class="table-responsive">
-                <table class="table table-bordered table-sm" width="100%" cellspacing="0">
+                <table class="table table-bordered table-sm" id="datatable" width="100%" cellspacing="0">
                   <thead>
                     <tr>
                       <th>Invoice no</th>
@@ -61,7 +61,7 @@
 <script>
 	function del(id) {
 		if(confirm("Are you sure you want to delete this invoice?")){
-		    window.location.href="<?=base_url('invoices/delete_invoice')?>/"+id;
+		    //window.location.href="<?=base_url('invoices/delete_invoice')?>/"+id;
 		}
     }
 </script>

@@ -13,8 +13,8 @@ class Proforma extends BaseController {
         if($l=='ADMINISTRATOR'||$l=='SUPERVISOR'||$l=='ACCOUNTANT'||$l=='RECEPTIONIST'||$l=='MARKETEER'||$l=='PROCUREMENT') {
             $db=Database::connect();
             $invoices=$db->table('proforma')->
-            select('*')->join('customers', 'proforma.customerId=customers.id', 'inner')
-                ->orderBy('date', 'DESC')->get()->getResult('object');
+            select('*')->join('customers', 'proforma.customerId=customers.id', 'left')
+                ->orderBy('proforma.invoiceId', 'DESC')->get()->getResult('object');
             return view('proforma/proformas', ['title'=>'Proforma Invoices', 'invoices'=>$invoices]);
         }
         return redirect()->to(base_url('pages/error'));
@@ -313,9 +313,9 @@ class Proforma extends BaseController {
             ->select('*')->join('proforma','proforma.customerId=customers.id','inner')
             ->getWhere(['invoiceId'=>$id])->getResult('object')[0];
         $date=date('Y-m-d',strtotime($custData->date));
-        $before=$db->query("select proforma.invoiceId,proforma.date,customers.customerName from proforma left JOIN customers on proforma.customerId=customers.id where proforma.date<'$date' group by proforma.date asc ")
+        $before=$db->query("select proforma.invoiceId,proforma.date,customers.customerName from proforma left JOIN customers on proforma.customerId=customers.id where proforma.date<'$date' group by proforma.invoiceId asc ")
             ->getResult();
-        $after=$db->query("select proforma.invoiceId,proforma.date,customers.customerName from proforma left JOIN customers on proforma.customerId=customers.id where proforma.date>$date group by proforma.date asc ")
+        $after=$db->query("select proforma.invoiceId,proforma.date,customers.customerName from proforma left JOIN customers on proforma.customerId=customers.id where proforma.date>'$date' group by proforma.invoiceId desc ")
             ->getResult();
         //print_r($before);return;
         if(empty($items)){
@@ -439,8 +439,8 @@ class Proforma extends BaseController {
         if($l=='ADMINISTRATOR'||$l=='SUPERVISOR'||$l=='ACCOUNTANT'||$l=='RECEPTIONIST'||$l=='MARKETEER'||$l=='PROCUREMENT') {
             $db=Database::connect();
             $db->query('SET FOREIGN_KEY_CHECKS=0');
-            $db->table('proformaitems2')->delete(['invoiceId'=>$id]);
-            $db->table('proforma')->delete(['invoiceId'=>$id]);
+            //$db->table('proformaitems2')->delete(['invoiceId'=>$id]);
+            //$db->table('proforma')->delete(['invoiceId'=>$id]);
             return redirect()->to(base_url('proforma/'));
         }
         return redirect()->to(base_url('pages/error'));

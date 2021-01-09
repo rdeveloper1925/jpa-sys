@@ -10,7 +10,7 @@
             <div class="card-body">
                 <button type="button" class="btn btn-primary btn-md" data-toggle="modal" data-target="#modelId"><i class="fa fa-plus" aria-hidden="true"></i> Add Receipt Item</button>                <hr>
                 <div class="table-responsive">
-                    <table class="table table-bordered"  width="100%" cellspacing="0">
+                    <table class="table table-bordered" id="datatable"  width="100%" cellspacing="0">
                         <thead>
                         <tr>
                             <th>Serial No.</th>

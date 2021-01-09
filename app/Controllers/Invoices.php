@@ -13,8 +13,8 @@ class Invoices extends BaseController {
         if($l=='ADMINISTRATOR'||$l=='SUPERVISOR'||$l=='ACCOUNTANT'||$l=='RECEPTIONIST'||$l=='MARKETEER'||$l=='PROCUREMENT') {
             $db=Database::connect();
             $invoices=$db->table('invoice')->
-            select('*')->join('customers', 'invoice.customerId=customers.id', 'inner')
-                ->orderBy('date', 'DESC')->get()->getResult('object');
+            select('*')->join('customers', 'invoice.customerId=customers.id', 'left')
+                ->orderBy('invoiceId', 'DESC')->get()->getResult('object');
             return view('content/invoices', ['title'=>'Tax Invoices', 'invoices'=>$invoices]);
         }
         return redirect()->to(base_url('pages/error'));
@@ -378,9 +378,9 @@ class Invoices extends BaseController {
                 ->select('*')->join('invoice','invoice.customerId=customers.id','inner')
                 ->getWhere(['invoiceId'=>$id])->getResult('object')[0];
         $date=date('Y-m-d',strtotime($custData->date));
-        $before=$db->query("select invoice.invoiceId,invoice.date,customers.customerName from invoice left JOIN customers on invoice.customerId=customers.id where invoice.date<'$date' group by invoice.date asc ")
+        $before=$db->query("select invoice.invoiceId,invoice.date,customers.customerName from invoice left JOIN customers on invoice.customerId=customers.id where invoice.date<'$date' group by invoice.invoiceId asc ")
             ->getResult();
-        $after=$db->query("select invoice.invoiceId,invoice.date,customers.customerName from invoice left JOIN customers on invoice.customerId=customers.id where invoice.date>$date group by invoice.date asc ")
+        $after=$db->query("select invoice.invoiceId,invoice.date,customers.customerName from invoice left JOIN customers on invoice.customerId=customers.id where invoice.date>'$date' group by invoice.invoiceId desc ")
             ->getResult();
 		//print_r($items);return;
 		if(empty($items)){
@@ -523,8 +523,8 @@ class Invoices extends BaseController {
         if($l=='ADMINISTRATOR'||$l=='SUPERVISOR'||$l=='ACCOUNTANT'||$l=='RECEPTIONIST'||$l=='MARKETEER'||$l=='PROCUREMENT') {
             $db=Database::connect();
             $db->query('SET FOREIGN_KEY_CHECKS=0');
-            $db->table('invoiceitems2')->delete(['invoiceId'=>$id]);
-            $db->table('invoice')->delete(['invoiceId'=>$id]);
+            //$db->table('invoiceitems2')->delete(['invoiceId'=>$id]);
+            //$db->table('invoice')->delete(['invoiceId'=>$id]);
             return redirect()->to(base_url('invoices/'));
         }
         return redirect()->to(base_url('pages/error'));

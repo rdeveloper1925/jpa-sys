@@ -13,7 +13,7 @@
             </div>
             <div class="card-body">
                 <div class="table-responsive">
-                    <table class="table table-bordered table-sm" width="100%" cellspacing="0">
+                    <table class="table table-bordered table-sm" id="datatable" width="100%" cellspacing="0">
                         <thead>
                         <tr>
                             <th>Name</th>
@@ -50,7 +50,7 @@
                                 <td><?=$c->areaCountry?></td>
                                 <td>
                                     <a href="<?=base_url('customers/edit/'.$c->id)?>" class="btn btn-sm btn-warning">Edit</a>
-                                    <a href="<?=base_url('customers/delete/'.$c->id)?>" class="btn btn-sm btn-danger">Delete</a>
+                                    <!--<a href="<?=base_url('customers/delete/'.$c->id)?>" class="btn btn-sm btn-danger">Delete</a>-->
                                 </td>
                             </tr>
                         <?php endforeach; ?>

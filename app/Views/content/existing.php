@@ -21,7 +21,7 @@
                 <!--<button id="search" class="btn btn-success btn-md" onclick="search()">Search Proforma No</button>-->
                 <p id="ttl"></p>
                 <div class="table-responsive">
-                    <table class="table table-bordered"  width="100%" cellspacing="0">
+                    <table class="table table-bordered table-sm"  width="100%" cellspacing="0">
                         <thead>
                         <tr>
                             <th>Serial No.</th>

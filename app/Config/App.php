@@ -20,7 +20,8 @@ class App extends BaseConfig
 	| environments.
 	|
 	*/
-	public $baseURL = 'http://localhost/code4/';
+	//public $baseURL = 'http://192.168.0.1/code4/';
+    public $baseURL = 'http://localhost/code4/';
 
 	/*
 	|--------------------------------------------------------------------------

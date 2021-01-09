@@ -221,6 +221,13 @@
    <!-- Page level custom scripts -->
    <script src="<?=base_url('assets/js/demo/datatables-demo.js')?>"></script>
 
+   <script>
+   $('#datatable').dataTable({
+     "bPaginate":false,
+     "paging":false
+   })
+   </script>
+
 </body>
 
 </html>

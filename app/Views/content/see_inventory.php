@@ -11,13 +11,13 @@
                 <td style="background-color: rgba(44,159,175,0.44)"><?=$item->partNo?></td>
                 <td><b>Part Name.</b></td>
                 <td><?=$item->partName?></td>
-                <td style="background-color: rgba(44,159,175,0.44)"><b>Quantity In Store.</b></td>
+                <td style="background-color: rgba(44,159,175,0.44)"><b>Quantity Before.</b></td>
                 <td style="background-color: rgba(44,159,175,0.44)"><?=$item->quantityInStore?></td>
             </tr>
             <tr>
                 <td><b>Date Out.</b></td>
                 <td><?=$item->dateOut?></td>
-                <td style="background-color: rgba(44,159,175,0.44)"><b>Balance In Store.</b></td>
+                <td style="background-color: rgba(44,159,175,0.44)"><b>Quantity After.</b></td>
                 <td style="background-color: rgba(44,159,175,0.44)"><?=$item->balanceInStore?></td>
                 <td><b>Supplied By.</b></td>
                 <td><?=$item->suppliedBy?></td>
@@ -62,6 +62,8 @@
                             <th>Stock Action</th>
                             <th>Quantity</th>
                             <th>Stock After</th>
+                            <th>Car type</th>
+                            <th>Mechanic</th>
                             <th>Date</th>
                             <th>Done By</th>
                         </tr>
@@ -73,6 +75,8 @@
                             <th>Stock Action</th>
                             <th>Quantity</th>
                             <th>Stock After</th>
+                            <th>Car type</th>
+                            <th>Mechanic</th>
                             <th>Date</th>
                             <th>Done By</th>
                         </tr>
@@ -82,9 +86,11 @@
                             <tr>
                                 <td><?=$i->partName?></td>
                                 <td><?=$i->quantityBefore?></td>
-                                <td><?=$i->stockAction?></td>
+                                <td><?=$i->stockAction?> </td>
                                 <td><?=$i->quantity?></td>
                                 <td><?=$i->quantityAfter?></td>
+                                <td><?=$i->carType?></td>
+                                <td><?=$i->mechanic?></td>
                                 <td><?=date('d-M-Y',strtotime($i->date))?></td>
                                 <td><?=$i->fullName?></td>
                             </tr>
@@ -118,9 +124,17 @@
                         <input type="text" class="form-control" name="itemName" value="<?=$item->partName?>" disabled/>
                     </div>
                     <div class="form-group">
+                        <label for="">Car Type:</label>
+                        <input type="text" class="form-control" name="carType"  required/>
+                    </div>
+                    <div class="form-group">
+                        <label for="">Mechanic Given:</label>
+                        <input type="text" class="form-control" name="mechanic"  required/>
+                    </div>
+                    <div class="form-group">
                         <label for="">Quantity Sold: (<?=$item->unitOfMeasure?>)</label>
-                        <input type="number" step=0.01 max="<?=$item->quantityInStore?>" class="form-control" name="quantity"  required/>
-                        <input type="hidden" name="qtyInStore" value="<?=$item->quantityInStore?>"/>
+                        <input type="number" step=0.01 max="<?=$item->balanceInStore?>" class="form-control" name="quantity"  required/>
+                        <input type="hidden" name="qtyInStore" value="<?=$item->balanceInStore?>"/>
                     </div>
             </div>
             <div class="modal-footer">
@@ -151,6 +165,11 @@
                                 <input type="text" class="form-control" name="itemName" value="<?=$item->partName?>" disabled/>
                             </div>
                             <div class="form-group">
+                                <label for="">Car type:</label>
+                                <input type="text" class="form-control" name="carType" required/>
+                            </div>
+                            <div class="form-group">
+                                <input type='hidden' name='balanceBefore' value="<?=$item->balanceInStore?>"/>
                                 <label for="">Quantity Re-stocked: (<?=$item->unitOfMeasure?>)</label>
                                 <input type="number" step=0.01 class="form-control" name="quantity"  required/>
                             </div>

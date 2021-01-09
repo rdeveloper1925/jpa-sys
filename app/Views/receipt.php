@@ -47,7 +47,7 @@
 				<div style="color: black" class="head-data">P. O. BOX 33246</div>
 				<div style="color: black" class="head-data">Kampala Uganda</div>
 				<div style="color: black" class="head-data">Tel: 0392-940769</div>
-				<div style="color: black" class="head-data">Email: jacitdgarage@gmail.com</div>
+				<div style="color: black" class="head-data">Email: jacltdgarage@gmail.com</div>
 			</td>
 			<td valign="top" style="width:35%; text-align: left">
 				<div class="head-data">RECEIPT NO.: <b><span style="color: black;"><?=$receiptId?></span></b></div>

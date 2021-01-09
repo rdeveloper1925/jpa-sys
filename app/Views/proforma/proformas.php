@@ -11,7 +11,7 @@
             </div>
             <div class="card-body">
                 <div class="table-responsive">
-                    <table class="table table-bordered table-sm" width="100%" cellspacing="0">
+                    <table class="table table-bordered table-sm" id="datatable" width="100%" cellspacing="0">
                         <thead>
                         <tr>
                             <th>Proforma no</th>

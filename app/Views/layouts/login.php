@@ -37,7 +37,7 @@
                   <div class="text-center">
                     <h1 class="h4 text-gray-900 mb-4">JAPAN AUTO CARE</h1>
 					  <h5 class="h5 text-black-50">Business Management System</h5>
-                    <img src="<?=base_url('assets/img/logo.png')?>" height="100px" width="300px" alt="Image here" srcset="">
+                    <img src="<?=base_url('assets/img/logo.png')?>" height="150px" width="300px" alt="Image here" srcset="">
                   </div>
 					<?php if(\Config\Services::session()->has('error')): ?>
                   <div class="alert alert-danger alert-dismissible fade show" role="alert">

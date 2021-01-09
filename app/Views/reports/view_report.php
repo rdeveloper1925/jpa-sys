@@ -7,7 +7,7 @@
                 <h6 class="m-0 font-weight-bold text-primary">Generated Report</h6>
             </div>
             <div class="card-body">
-                <table class="table table-bordered table-sm" width="100%" cellspacing="0">
+                <table class="table table-bordered table-sm" id="datatable" width="100%" cellspacing="0">
                     <thead>
                     <tr>
                         <th>Invoice no</th>
