@@ -31,9 +31,9 @@ class Database extends \CodeIgniter\Database\Config
 	 */
 	public $default = [
 		'DSN'      => '',
-		'hostname' => '192.168.0.1',
-		'username' => 'm477',
-		'password' => 'herandia1',
+		'hostname' => 'localhost',
+		'username' => 'root',
+		'password' => '',
 		'database' => 'project3new',
 		'DBDriver' => 'MySQLi',
 		'DBPrefix' => '',
