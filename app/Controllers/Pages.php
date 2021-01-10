@@ -11,6 +11,9 @@ class Pages extends BaseController
 		$data['invoices']=$db->table('invoice')->countAll();
 		$data['receipts']=$db->table('receipt')->countAll();
 		$data['inventory']=$db->table('inventory')->countAll();
+		$data['proforma']=$db->table('proforma')->countAll();
+        $data['certificates']=$db->table('certificates')->countAll();
+        $data['suppliers']=$db->table('suppliers')->countAll();
 		$data['title']="Home Page";
 		$data['users']=$db->table('users')->countAll();
 		return view('content/home',$data);

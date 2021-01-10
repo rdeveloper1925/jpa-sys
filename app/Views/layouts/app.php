@@ -2,28 +2,26 @@
 <html lang="en">
 
 <head>
-
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
   <meta name="description" content="">
   <meta name="author" content="">
-	<link rel="icon" href="<?=base_url('assets/img/logo.png')?>"/>
+    <link rel="icon" href="<?=base_url('assets/img/logo.png')?>"/>
+    <link href="<?=base_url('assets/vendor/fontawesome-free/css/all.min.css')?>" rel="stylesheet" type="text/css">
+    <link href="<?=base_url('assets/fonts/cust-fonts.css')?>" rel="stylesheet">
     <script src="<?=base_url('assets/vendor/jquery/jquery.min.js')?>"></script>
   <title>Japan Auto Care - Invoicer</title>
-
-  <!-- Custom fonts for this template-->
-  <link href="<?=base_url('assets/vendor/fontawesome-free/css/all.min.css" rel="stylesheet')?>" type="text/css">
 
   <!-- Custom styles for this template-->
   <link href="<?=base_url('assets/css/sb-admin-2.min.css')?>" rel="stylesheet">
   <link href="<?=base_url('assets/vendor/datatables/dataTables.bootstrap4.min.css')?>" rel="stylesheet">
-	<link href="<?=base_url('assets/vendor/fontawesome-free/css/all.min.css" rel="stylesheet')?>" type="text/css">
 	<style>
 		.my-nav{
 			font-weight: bolder;font-size: 17px;
 		}
 	</style>
+
 </head>
 
 <body id="page-top">
@@ -37,7 +35,7 @@
       <!-- Sidebar - Brand -->
       <a class="sidebar-brand d-flex align-items-center justify-content-center" href="index.html">
         <div class="sidebar-brand-icon rotate-n-15">
-          <i class="fas fa-laugh-wink"></i>
+          <i class="fas fa-clipboard-check"></i>
         </div>
         <div class="sidebar-brand-text mx-3">Japan Auto Care</div>
       </a>
@@ -57,57 +55,62 @@
       <!-- Nav Item - Charts -->
 		<li class="nav-item">
 			<a class="nav-link" href="<?=base_url('inventory')?>">
-				<i class="fas fa-fw fa-list-ul"></i>
+				<i class="fas fa-fw fa-truck"></i>
 				<span class="my-nav">Inventory</span></a>
 		</li>
         <li class="nav-item">
             <a class="nav-link" href="<?=base_url('suppliers')?>">
-                <i class="fas fa-fw fa-list-ul"></i>
+                <i class="fas fa-fw fa-address-book"></i>
                 <span class="my-nav">Suppliers</span></a>
         </li>
         <li class="nav-item">
             <a class="nav-link" href="<?=base_url('customers')?>">
-                <i class="fas fa-fw fa-list-ul"></i>
+                <i class="fas fa-fw fa-users"></i>
                 <span class="my-nav">Customers</span></a>
         </li>
       <li class="nav-item">
         <a class="nav-link" href="<?=base_url('invoices')?>">
-          <i class="fas fa-fw fa-list-ul"></i>
+          <i class="fas fa-fw fa-clipboard-check"></i>
           <span class="my-nav">Tax Invoices</span></a>
       </li>
         <li class="nav-item">
             <a class="nav-link" href="<?=base_url('proforma')?>">
-                <i class="fas fa-fw fa-list-ul"></i>
+                <i class="fas fa-fw fa-clipboard-list"></i>
                 <span class="my-nav">Proforma Invoices</span></a>
         </li>
 
 		<li class="nav-item">
 			<a class="nav-link" href="<?=base_url('receipts')?>">
-				<i class="fas fa-fw fa-list-ul"></i>
+				<i class="fas fa-fw fa-receipt"></i>
 				<span class="my-nav">Receipts</span></a>
 		</li>
         <li class="nav-item">
             <a class="nav-link" href="<?=base_url('reports')?>">
-                <i class="fas fa-fw fa-list-ul"></i>
+                <i class="fas fa-fw fa-paperclip"></i>
                 <span class="my-nav">Reports </span></a>
         </li>
         <li class="nav-item">
+            <a class="nav-link" href="<?=base_url('certificates')?>">
+                <i class="fas fa-fw fa-certificate"></i>
+                <span class="my-nav">Completion Certificates </span></a>
+        </li>
+        <li class="nav-item">
             <a class="nav-link" href="<?=base_url('suppliers/cheque_vouchers')?>">
-                <i class="fas fa-fw fa-list-ul"></i>
+                <i class="fas fa-fw fa-hashtag"></i>
                 <span class="my-nav">Cheque Vouchers</span></a>
         </li>
 
 		<?php if (!strcmp(\Config\Services::session()->get('accessLevel'),'ADMINISTRATOR')): ?>
 		<li class="nav-item">
 			<a class="nav-link" href="<?=base_url('users')?>">
-				<i class="fas fa-fw fa-list-ul"></i>
+				<i class="fas fa-fw fa-user-cog"></i>
 				<span class="my-nav">User Management</span></a>
 		</li>
 		<?php endif; ?>
 
 		<li class="nav-item">
 			<a class="nav-link" href="<?=base_url('auth/logout')?>">
-				<i class="fas fa-fw fa-list-ul"></i>
+				<i class="fas fa-fw fa-walking"></i>
 				<span class="my-nav">Logout</span></a>
 		</li>
 

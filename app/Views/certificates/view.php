@@ -103,7 +103,7 @@
                             <textarea class="form-control"  disabled value="<?=$certificate->comments?>" name="comments"  ><?=$certificate->comments?></textarea>
                         </div>
                         <div class="col-12">
-                            <a href="<?=base_url('certificates/print/'.$certificate->id)?>>" class="btn btn-success">View Certificate <i class="fa fa-forward" aria-hidden="true"></i></a>
+                            <a href="<?=base_url('certificates/print/'.$certificate->id)?>" class="btn btn-success">View Certificate <i class="fa fa-forward" aria-hidden="true"></i></a>
                         </div>
                     </div>
                 </form>
