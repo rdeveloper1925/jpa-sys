@@ -166,8 +166,8 @@ $this->section('content') ?>
             <table class="">
                 <?php foreach($before as $r): ?>
                     <tr>
-                        <td><a href="<?=base_url('proforma/tax_and_discounts/'.$r->invoiceId)?>"><?=$r->invoiceId?></a> </td>
-                        <td style="font-size: 12px;"><?=$r->customerName?> (<?=date('d-M-Y',strtotime($r->date))?>)</td>
+                        <td><a href="<?=base_url('invoices/tax_and_discounts/'.$r->INVOICEID)?>"><?=$r->INVOICEID?></a> </td>
+                        <td style="font-size: 12px;"><?=$r->CUSTOMERNAME?> (<?=date('d-M-Y',strtotime($r->DATE))?>)</td>
 
                     </tr>
                 <?php endforeach; ?>
@@ -182,8 +182,8 @@ $this->section('content') ?>
             <table class="">
                 <?php foreach($after as $r): ?>
                     <tr>
-                        <td><a href="<?=base_url('proforma/tax_and_discounts/'.$r->invoiceId)?>"><?=$r->invoiceId?></a> </td>
-                        <td style="font-size: 12px;"><?=$r->customerName?> (<?=date('d-M-Y',strtotime($r->date))?>)</td>
+                        <td><a href="<?=base_url('invoices/tax_and_discounts/'.$r->INVOICEID)?>"><?=$r->INVOICEID?></a> </td>
+                        <td style="font-size: 12px;"><?=$r->CUSTOMERNAME?> (<?=date('d-M-Y',strtotime($r->DATE))?>)</td>
                     </tr>
                 <?php endforeach; ?>
             </table>

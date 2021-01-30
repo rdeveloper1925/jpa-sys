@@ -2,12 +2,16 @@
 
 use CodeIgniter\Config\Services;
 use Config\Database;
+use Monolog\Handler\StreamHandler;
+use Monolog\Logger;
 
 class Auth extends BaseController{
 	public function index(){
-		return view('layouts/login');
+        return view('layouts/login');
 	}
     public function doLogin(){
+        $logger=new Logger('errors');
+        $logger->pushHandler(new StreamHandler('Logs/auth.log', Logger::INFO));
 		$session=Services::session();
        	$username=$this->request->getVar('username');
 		$password=hash('md5',$this->request->getVar('password'));
@@ -15,6 +19,7 @@ class Auth extends BaseController{
         $rs=$db->table('users')->getWhere(['username'=>$username,'password'=>$password])->getResultArray();
         if (empty($rs)){
         	$session->setFlashdata('error','Username and password dont match!');
+            $logger->info("Failed password ",['username'=>$username]);
 			return view('layouts/login');
 		}
         //print_r($rs[0]);

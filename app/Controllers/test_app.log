@@ -1,0 +1,4 @@
+[2021-01-30T13:08:43.483055-06:00] errors.INFO: Login page shown [] []
+[2021-01-30T13:12:46.365045-06:00] errors.INFO: Login page shown [] []
+[2021-01-30T13:12:52.799215-06:00] errors.INFO: Failed password [] []
+[2021-01-30T13:14:16.799451-06:00] errors.INFO: Failed password  {"username":"amdin"} []

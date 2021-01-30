@@ -4,6 +4,14 @@
     <div class="col-md-12 col-sm-12">
         <a href="<?=base_url('invoices/create')?>" class="btn btn-success"><i class="fa fa-plus" aria-hidden="true"></i> Create New Invoice</a>
     </div>
+    <?php if(\Config\Services::session()->has('success')): ?>
+        <div class="alert alert-success alert-dismissible fade show col-12" role="alert">
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+            <strong>Success! </strong> <?=\Config\Services::session()->get('success')?>
+        </div>
+    <?php endif; ?>
     <div class="col-12 mt-3">
         <div class="card shadow mb-4">
             <div class="card-header py-3">
@@ -45,7 +53,7 @@
 							<td><?=$invoice->carRegNo?></td>
 							<td>
 								<a href="<?=base_url('invoices/tax_and_discounts/'.$invoice->invoiceId)?>" class="btn btn-sm btn-primary"><i class="fa fa-eye" aria-hidden="true"></i>View </a>
-								<a href="#" onclick="del(<?=$invoice->invoiceId?>)" class="btn btn-sm btn-danger"><i class="fa fa-trash" aria-hidden="true"></i>Delete </a>
+								<!--<a href="#" onclick="del(<?=$invoice->invoiceId?>)" class="btn btn-sm btn-danger"><i class="fa fa-trash" aria-hidden="true"></i>Delete </a>-->
                                 <a href="<?=base_url('invoices/invoice_items_edit/'.$invoice->invoiceId)?>" class="btn btn-warning">Edit Items</a>
                                 <a href="<?=base_url('invoices/custdetails_edit/'.$invoice->invoiceId)?>" class="btn btn-warning">Edit details</a>
 							</td>

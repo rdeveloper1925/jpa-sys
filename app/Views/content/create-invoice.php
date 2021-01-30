@@ -21,30 +21,31 @@
                                 <?php endforeach; ?>
                             </select>
                             <input type="hidden" name="customerId2" id="customerIdd"/>
+                            <input type="hidden" name="customerName" id="customerName"/>
                         </div>
                         <div class="form-group col-4">
                             <label for="">Contact Person: </label>
-                            <input type="text" class="form-control" id="contactPerson" required/>
+                            <input type="text" class="form-control" name="contactPerson" id="contactPerson" required/>
                         </div>
                         <div class="form-group col-4">
                             <label for="">Address: </label>
-                            <input type="text" class="form-control" id="address" required/>
+                            <input type="text" class="form-control" name="address" id="address" required/>
                         </div>
                         <div class="form-group col-4">
                             <label for="">Area Country: </label>
-                            <input type="text" class="form-control" id="areaCountry" required/>
+                            <input type="text" class="form-control" name="areaCountry" id="areaCountry" required/>
                         </div>
                         <div class="form-group col-4">
                             <label for="">Phone: </label>
-                            <input type="text" class="form-control" id="phone" required/>
+                            <input type="text" class="form-control" name="phone" id="phone" required/>
                         </div>
                         <div class="form-group col-4">
                             <label for="">Email: </label>
-                            <input type="text" class="form-control" id="email" required>
+                            <input type="text" class="form-control" name="email" id="email" required>
                         </div>
                         <div class="form-group col-4">
                             <label for="">Customer Tin No: </label>
-                            <input type="tel" pattern='[0-9]*' class="form-control" id="tinNo" required>
+                            <input type="tel" pattern='[0-9]*' name="tinNo" class="form-control" id="tinNo" required>
                         </div>
                         <!-- this is the breaking point -->
                         <div class="col-12">
@@ -119,6 +120,7 @@
                 function (data, textStatus, jqXHR) {
                     if(data.success){
                         $("#contactPerson").val(data.customer.contactPerson);
+                        $("#customerName").val(data.customer.customerName);
                         $("#address").val(data.customer.address);
                         $("#areaCountry").val(data.customer.areaCountry);
                         $("#phone").val(data.customer.phone);

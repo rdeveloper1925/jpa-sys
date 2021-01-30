@@ -1,0 +1,1 @@
+[2021-01-30T13:43:56.789335-06:00] infos.INFO: New Customer added {"customer":{"customerName":"test123","contactPerson":"testperson","tinNo":"011","address":"test address","areaCountry":"Testland","phone":"+025652","email":"test@text.com","deleted":0},"maker":"admin"} []

@@ -1,6 +1,8 @@
 <?php
 namespace App\Controllers;
 use Config\Database;
+use Monolog\Handler\StreamHandler;
+use Monolog\Logger;
 use org\bovigo\vfs\vfsStreamContainerIterator;
 
 class Customers extends BaseController{
@@ -11,7 +13,10 @@ class Customers extends BaseController{
         $data['title']='Registered Customers';
         return view('content/customers_view',$data);
     }
+
     public function save(){
+        $logger=new Logger('infos');
+        $logger->pushHandler(new StreamHandler('Logs/customers.log', Logger::INFO));
         $customer=array(
             'customerName'=>$this->request->getVar('customerName'),
             'contactPerson'=>$this->request->getVar('contactPerson'),
@@ -25,6 +30,8 @@ class Customers extends BaseController{
         //return print_r($customer);
         $db=Database::connect();
         $db->table('customers')->insert($customer);
+        $logger->info("New Customer added",['customer'=>$customer,'maker'=>session()->get('username')]);
+        session()->setFlashdata('success',"New Customer $customer->customerName added successfully");
         return redirect()->to(base_url('customers/'));
     }
     public function edit($id){

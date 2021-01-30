@@ -4,17 +4,38 @@ namespace App\Controllers;
 use CodeIgniter\Session\Session;
 use Config\Database;
 use Config\Services;
+use Monolog\Handler\StreamHandler;
+use Monolog\Logger;
 use Mpdf\Mpdf;
 
 class Invoices extends BaseController {
+    public function invoiceAdjuster(){
+        $db=Database::connect();
+        $invoice=$db->table('invoice')->get()->getResultObject();
+        foreach($invoice as $i){
+            $customer=$db->table('customers')->getWhere(['id'=>$i->customerId])->getResultObject();
+            $invoice_update=array(
+                'customerName'=>$customer[0]->customerName,
+                'contactPerson'=>$customer[0]->contactPerson,
+                'tinNo'=>$customer[0]->tinNo,
+                'address'=>$customer[0]->address,
+                'areaCountry'=>$customer[0]->areaCountry,
+                'phone'=>$customer[0]->phone,
+                'email'=>$customer[0]->email,
+                'otherContactDetails'=>$customer[0]->otherContactDetails,
+            );
+            $db->table('invoice')->update($invoice_update,['invoiceId'=>$i->invoiceId]);
+        }
+    }
+
 	public function index(){
         $session=\CodeIgniter\Config\Services::session();
         $l=$session->get('accessLevel');
         if($l=='ADMINISTRATOR'||$l=='SUPERVISOR'||$l=='ACCOUNTANT'||$l=='RECEPTIONIST'||$l=='MARKETEER'||$l=='PROCUREMENT') {
             $db=Database::connect();
             $invoices=$db->table('invoice')->
-            select('*')->join('customers', 'invoice.customerId=customers.id', 'left')
-                ->orderBy('invoiceId', 'DESC')->get()->getResult('object');
+            select('*')->orderBy('invoiceId', 'DESC')->get()->getResult('object');
+
             return view('content/invoices', ['title'=>'Tax Invoices', 'invoices'=>$invoices]);
         }
         return redirect()->to(base_url('pages/error'));
@@ -30,8 +51,8 @@ class Invoices extends BaseController {
                 return view('error', ['title'=>"Error", 'message'=>"Sorry, We couldn't find the invoice Id"]);
             }
             $customerId=$row->getResult()[0]->customerId;
-            $customerData=$db->table('customers')->getWhere(['id'=>$customerId])->getResult();
-            $data['customerData']=$customerData[0];
+            //$customerData=$db->table('customers')->getWhere(['id'=>$customerId])->getResult();
+            //$data['customerData']=$row->getResultObject()[0];
             $data['invoice_no']=$id;
             $data['invoice']=$row->getResult('object')[0];
             $data['title']="Edit Invoice Details. (" . $id . ")";
@@ -52,12 +73,20 @@ class Invoices extends BaseController {
 	}
 
 	public function save(){
-		//alter table invoice AUTO_INCREMENT=21324
-        //return print_r($this->request->getVar('existingData'));
+        $logger=new Logger('errors');
+        $logger->pushHandler(new StreamHandler('Logs/invoices.log', Logger::INFO));
         $db=Database::connect();
         $db->table('proformainvoicenumbers')->insert(['status'=>1]);
         $proformaId=$db->insertID();
 		$invoice=array(
+            'customerName'=>$this->request->getVar('customerName'),
+            'contactPerson'=>$this->request->getVar('contactPerson'),
+            'tinNo'=>$this->request->getVar('tinNo'),
+            'address'=>$this->request->getVar('address'),
+            'areaCountry'=>$this->request->getVar('areaCountry'),
+            'phone'=>$this->request->getVar('phone'),
+            'email'=>$this->request->getVar('email'),
+            'otherContactDetails'=>$this->request->getVar('otherContactDetails'),
 			'customerId'=>$this->request->getVar('customerId'),
 			'date'=>$this->request->getVar('date'),
 			'currency'=>strtoupper($this->request->getVar('currency')),
@@ -69,7 +98,7 @@ class Invoices extends BaseController {
             'preparedBy'=>\Config\Services::session()->get('id'),
             'proformaId'=>$proformaId,
             'narration'=>$this->request->getVar('narration')
-		);
+		);/*
 		$customer=$db->table('customers')->getWhere(['id'=>$this->request->getVar('customerId')])->getResult('object')[0];
 		//print_r($customer);
 		$custDetails=array(
@@ -80,10 +109,11 @@ class Invoices extends BaseController {
             'email'=>$customer->email,
             'tinNo'=>$customer->tinNo
         );
-		$db->table('customers')->update($custDetails,['id'=>$this->request->getVar('customerId')]);
+		$db->table('customers')->update($custDetails,['id'=>$this->request->getVar('customerId')]);*/
 		$db->table('invoice')->insert($invoice);
 		$invoiceId=$db->insertID();
-		//return print_r($invoiceId);
+		$custName=$invoice['customerName'];
+		$logger->info("New tax invoice ($invoiceId) for $custName created",['maker'=>session()->get('fullName')]);
 		if($this->request->getVar('existingData')=='existing'){
 		    return redirect()->to(base_url('invoices/existing/'.$invoiceId));
 		}else{
@@ -207,17 +237,17 @@ class Invoices extends BaseController {
 
     public function save_edits(){
         $db=Database::connect();
+        $logger=new Logger('errors');
+        $logger->pushHandler(new StreamHandler('Logs/invoices.log', Logger::INFO));
         $custId=$this->request->getVar('custId');
-        $customer=array(
+        $invoice=array(
             'contactPerson'=>$this->request->getVar('contactPerson'),
             'customerName'=>$this->request->getVar('customerName'),
             'address'=>$this->request->getVar('address'),
             'areaCountry'=>$this->request->getVar('areaCountry'),
             'phone'=>$this->request->getVar('phone'),
             'email'=>$this->request->getVar('email'),
-            'tinNo'=>$this->request->getVar('tinNo')
-        );
-        $invoice=array(
+            'tinNo'=>$this->request->getVar('tinNo'),
             'date'=>$this->request->getVar('date'),
             'currency'=>strtoupper($this->request->getVar('currency')),
             'modeOfPayment'=>$this->request->getVar('modeOfPayment'),
@@ -228,9 +258,10 @@ class Invoices extends BaseController {
             'preparedBy'=>\Config\Services::session()->get('id'),
             'narration'=>$this->request->getVar('narration')
         );
-        $db->table('customers')->update($customer,['id'=>$custId]);
         $db->table('invoice')->update($invoice,['invoiceId'=>$this->request->getVar('invoiceId')]);
-
+        $invoice_id=$this->request->getVar('invoiceId');
+        $logger->info("Invoice $invoice_id edited",['maker'=>session()->get('fullName')]);
+        session()->setFlashdata('success',"Invoice $invoice_id has been edited successfully");
         return redirect()->to(base_url('invoices'));
     }
 
@@ -374,19 +405,20 @@ class Invoices extends BaseController {
 		$items=$db->table('invoiceitems2')->select('*')
                     ->getWhere(['invoiceId'=>$id])->getResultArray();
 		$discount=$db->table('discounts')->getWhere(['invoiceId'=>$id])->getResultArray();
-		$custData=$db->table('customers')
-                ->select('*')->join('invoice','invoice.customerId=customers.id','inner')
+		$invoiceData=$db->table('invoice')
+                ->select('*')
                 ->getWhere(['invoiceId'=>$id])->getResult('object')[0];
-        $date=date('Y-m-d',strtotime($custData->date));
-        $before=$db->query("select invoice.invoiceId,invoice.date,customers.customerName from invoice left JOIN customers on invoice.customerId=customers.id where invoice.date<'$date' group by invoice.invoiceId asc ")
+        $date=date('Y-m-d',strtotime($invoiceData->date));
+        $before=$db->query("SELECT INVOICEID, DATE, CUSTOMERNAME FROM INVOICE WHERE DATE<'$date' ORDER BY INVOICEID ASC")
             ->getResult();
-        $after=$db->query("select invoice.invoiceId,invoice.date,customers.customerName from invoice left JOIN customers on invoice.customerId=customers.id where invoice.date>'$date' group by invoice.invoiceId desc ")
+        $after=$db->query("SELECT INVOICEID, DATE, CUSTOMERNAME FROM INVOICE WHERE DATE>'$date' ORDER BY INVOICEID DESC")
             ->getResult();
 		//print_r($items);return;
 		if(empty($items)){
 			return redirect()->to(base_url('invoices/invoice_items/'.$id));
 		}
-		return view('content/taxAndDiscounts',['before'=>$before,'after'=>$after,'maker'=>$maker,'invoiceId'=>$id,'items'=>$items,'data'=>$custData,'title'=>'Tax and Discounts','discount'=>$discount]);
+		//return json_encode(['before'=>$before,'after'=>$after,'maker'=>$maker,'invoiceId'=>$id,'items'=>$items,'data'=>$invoiceData,'title'=>'Tax and Discounts','discount'=>$discount]);
+		return view('content/taxAndDiscounts',['before'=>$before,'after'=>$after,'maker'=>$maker,'invoiceId'=>$id,'items'=>$items,'data'=>$invoiceData,'title'=>'Tax and Discounts','discount'=>$discount]);
 	}
 
 	public function apply_discount($id){
@@ -417,45 +449,20 @@ class Invoices extends BaseController {
         return redirect()->to(base_url('pages/error'));
 	}
 
-	public function generate_old($id){
-		$pdf=new Mpdf();
-		$pdf->SetHTMLHeader('<div style="text-align: right; font-weight: bold;">INVOICE</div>','O');
-		$pdf->SetHTMLHeader('<div style="border-bottom: 1px solid #000000;">INVOICE</div>','E');
-		$pdf->SetHTMLFooter('<table width="100%" style="vertical-align: bottom; font-family: serif;font-size: 8pt; color: #000000; font-weight: bold; font-style: italic;">
-    									<tr>
-											<td width="33%">{DATE j-m-Y}</td>
-											<td width="33%" align="center">{PAGENO}/{nbpg}</td>
-											<td width="33%" style="text-align: right;">My document</td>
-    									</tr>
-									</table>');  // Note that the second parameter is optional : default = 'O' for ODD
-
-		$pdf->SetHTMLFooter('<table width="100%" style="vertical-align: bottom; font-family: serif;font-size: 8pt; color: #000000; font-weight: bold; font-style: italic;">
-										<tr>
-											<td width="33%"><span style="font-weight: bold; font-style: italic;">My document</span></td>
-											<td width="33%" align="center" style="font-weight: bold; font-style: italic;">{PAGENO}/{nbpg}</td>
-											<td width="33%" style="text-align: right; ">{DATE j-m-Y}</td>
-										</tr>
-									</table>', 'E');
-
-		$pdf->WriteHTML(view('html_convert_pdf'));
-		$pdf->Output("mine.pdf","D");
-	}
-
 	public function generate($id){
 		$db=Database::connect();
 		$data['ttl']="TAX INVOICE";
 		$data['words']=$this->request->getVar('words');
-		$data['items']=$db->table('invoiceitems')->getWhere(['invoiceId'=>$id])->getResultArray();
         $data['items']=$db->table('invoiceitems2')->select('*')
             ->getWhere(['invoiceId'=>$id])->getResultArray();
 		$data['discount']=$db->table('discounts')->getWhere(['invoiceId'=>$id])->getResultArray();
 		//$data['data']=$db->table('invoice')->getWhere(['invoiceId'=>$id])->getResult('object')[0];
 		$data['invoiceId']=$id;
         $data['data']=$db->table('invoice')->
-            select('*')->join('customers','invoice.customerId=customers.id','inner')
+            select('*')
             ->join('users','invoice.preparedBy=users.id','inner')
             ->orderBy('date','DESC')->getWhere(['invoiceId'=>$id])->getResult('object')[0];
-            $dta=$data['data'];
+        $dta=$data['data'];
         $pdf=new Mpdf();
         $pdf->SetMargins(15,15,15,15);
         $pdf->SetWatermarkImage(base_url("assets/img/logo.png"),0.3,'F','F');
@@ -482,40 +489,6 @@ class Invoices extends BaseController {
 		return ;
 	}
 
-    public function generate2($id){
-        $db=Database::connect();
-        $data['ttl']="PROFORMA INVOICE";
-        $data['words']=$this->request->getVar('words2');
-        $data['items']=$db->table('invoiceitems')->getWhere(['invoiceId'=>$id])->getResultArray();
-        $data['items']=$db->table('invoiceitems2')->select('*')
-            ->getWhere(['invoiceId'=>$id])->getResultArray();
-        $data['discount']=$db->table('discounts')->getWhere(['invoiceId'=>$id])->getResultArray();
-        //$data['data']=$db->table('invoice')->getWhere(['invoiceId'=>$id])->getResult('object')[0];
-        $data['invoiceId']=$id;
-        $data['data']=$db->table('invoice')->
-        select('*')->join('customers','invoice.customerId=customers.id','inner')
-            ->join('users','invoice.preparedBy=users.id','inner')
-            ->orderBy('date','DESC')->getWhere(['invoiceId'=>$id])->getResult('object')[0];
-        $dta=$data['data'];
-
-        $pdf=new Mpdf();
-        $pdf->SetMargins(15,15,15,15);
-        $pdf->SetWatermarkImage(base_url("assets/img/logo.png"),0.3,'F','F');
-        $pdf->SetHTMLHeader('<div style="border-bottom: 1px solid #000000;">TAX INVOICE</div>','E');
-        $pdf->SetHTMLFooter('<table width="100%" style="vertical-align: bottom; font-family: serif;font-size: 8pt; color: #000000; font-weight: bold; font-style: italic;">
-    								
-    									<tr>
-											<td width="33%">'.date("d-M-Y",strtotime($dta->date)).'</td>
-											<td width="33%" align="center">"Customer Satisfaction First"</td>
-											<td width="33%" align="center">Page: {PAGENO}/{nbpg}</td>
-    									</tr>
-									</table>');  // Note that the second parameter is optional : default = 'O' for ODD
-
-
-        $pdf->WriteHTML(view('html_convert_pdf',$data));
-        $pdf->Output("Invoice-".$id."-".date('Y-m-d').".pdf","D");
-        return ;
-    }
 
 	public function delete_invoice($id){
         $session=\CodeIgniter\Config\Services::session();
