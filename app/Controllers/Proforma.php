@@ -4,17 +4,37 @@ namespace App\Controllers;
 use CodeIgniter\Session\Session;
 use Config\Database;
 use Config\Services;
+use Monolog\Handler\StreamHandler;
+use Monolog\Logger;
 use Mpdf\Mpdf;
 
 class Proforma extends BaseController {
+    public function proformaAdjuster32(){
+        $db=Database::connect();
+        $proforma=$db->table('proforma')->get()->getResultObject();
+        foreach($proforma as $i){
+            $customer=$db->table('customers')->getWhere(['id'=>$i->customerId])->getResultObject();
+            $proforma_update=array(
+                'customerName'=>$customer[0]->customerName,
+                'contactPerson'=>$customer[0]->contactPerson,
+                'tinNo'=>$customer[0]->tinNo,
+                'address'=>$customer[0]->address,
+                'areaCountry'=>$customer[0]->areaCountry,
+                'phone'=>$customer[0]->phone,
+                'email'=>$customer[0]->email,
+                'otherContactDetails'=>$customer[0]->otherContactDetails,
+            );
+            $db->table('proforma')->update($proforma_update,['invoiceId'=>$i->invoiceId]);
+        }
+    }
+
     public function index(){
         $session=\CodeIgniter\Config\Services::session();
         $l=$session->get('accessLevel');
         if($l=='ADMINISTRATOR'||$l=='SUPERVISOR'||$l=='ACCOUNTANT'||$l=='RECEPTIONIST'||$l=='MARKETEER'||$l=='PROCUREMENT') {
             $db=Database::connect();
             $invoices=$db->table('proforma')->
-            select('*')->join('customers', 'proforma.customerId=customers.id', 'left')
-                ->orderBy('proforma.invoiceId', 'DESC')->get()->getResult('object');
+            select('*')->orderBy('invoiceId', 'DESC')->get()->getResult('object');
             return view('proforma/proformas', ['title'=>'Proforma Invoices', 'invoices'=>$invoices]);
         }
         return redirect()->to(base_url('pages/error'));
@@ -74,12 +94,20 @@ class Proforma extends BaseController {
     }
 
     public function save(){
-        //alter table invoice AUTO_INCREMENT=21324
-        //return print_r($this->request->getVar());
+        $logger=new Logger('errors');
+        $logger->pushHandler(new StreamHandler('Logs/proforma.log', Logger::INFO));
         $db=Database::connect();
         $db->table('proformainvoicenumbers')->insert(['status'=>1]);
         $proformaId=$db->insertID();
         $invoice=array(
+            'customerName'=>$this->request->getVar('customerName'),
+            'contactPerson'=>$this->request->getVar('contactPerson'),
+            'tinNo'=>$this->request->getVar('tinNo'),
+            'address'=>$this->request->getVar('address'),
+            'areaCountry'=>$this->request->getVar('areaCountry'),
+            'phone'=>$this->request->getVar('phone'),
+            'email'=>$this->request->getVar('email'),
+            'otherContactDetails'=>$this->request->getVar('otherContactDetails'),
             'invoiceId'=>$proformaId,
             'customerId'=>$this->request->getVar('customerId'),
             'date'=>$this->request->getVar('date'),
@@ -93,20 +121,13 @@ class Proforma extends BaseController {
             'proformaId'=>$proformaId,
             'narration'=>$this->request->getVar('narration')
         );
-        $customer=$db->table('customers')->getWhere(['id'=>$this->request->getVar('customerId')])->getResult('object')[0];
-        //print_r($customer);
-        $custDetails=array(
-            'contactPerson'=>$customer->contactPerson,
-            'address'=>$customer->address,
-            'areaCountry'=>$customer->areaCountry,
-            'phone'=>$customer->phone,
-            'email'=>$customer->email,
-            'tinNo'=>$customer->tinNo
-        );
-        $db->table('customers')->update($custDetails,['id'=>$this->request->getVar('customerId')]);
+        //$db->table('customers')->update($custDetails,['id'=>$this->request->getVar('customerId')]);
         $db->table('proforma')->insert($invoice);
+        //return json_encode($invoice);
         if($db->affectedRows()==1){
             $invoiceId=$db->insertID();
+            $logger->info("New proforma ($invoiceId) created",['maker'=>\session()->get('fullName')]);
+            //session()->setFlashdata('success',"New proforma ($invoiceId) created");
             return redirect()->to(base_url('proforma/invoice_items/'.$invoiceId));
         }else{
             echo "Input failed";
@@ -117,18 +138,17 @@ class Proforma extends BaseController {
 
     public function save_detail_edits(){
         $db=Database::connect();
-        $custId=$this->request->getVar('custId');
-        $customer=array(
+        $logger=new Logger('errors');
+        $logger->pushHandler(new StreamHandler('Logs/proforma.log', Logger::INFO));
+        $this->request->getVar('custId');
+        $invoice=array(
             'contactPerson'=>$this->request->getVar('contactPerson'),
             'customerName'=>$this->request->getVar('customerName'),
             'address'=>$this->request->getVar('address'),
             'areaCountry'=>$this->request->getVar('areaCountry'),
             'phone'=>$this->request->getVar('phone'),
             'email'=>$this->request->getVar('email'),
-            'tinNo'=>$this->request->getVar('tinNo')
-        );
-
-        $invoice=array(
+            'tinNo'=>$this->request->getVar('tinNo'),
             'date'=>$this->request->getVar('date'),
             'currency'=>strtoupper($this->request->getVar('currency')),
             'modeOfPayment'=>$this->request->getVar('modeOfPayment'),
@@ -139,10 +159,13 @@ class Proforma extends BaseController {
             'preparedBy'=>\Config\Services::session()->get('id'),
             'narration'=>$this->request->getVar('narration')
         );//return print_r($this->request->getVar('invoice_no'));
-        $db->table('customers')->update($customer,['id'=>$custId]);
+        //db->table('customers')->update($customer,['id'=>$custId]);
+        $proforma_id=$this->request->getVar('invoice_no');
+        $customerName=$this->request->getVar('customerName');
         $db->table('proforma')->update($invoice,['invoiceId'=>$this->request->getVar('invoice_no')]);
-
-            return redirect()->to(base_url('proforma'));
+        $logger->info("Proforma ($proforma_id) of $customerName has been edited",['maker'=>session()->get('fullName')]);
+        session()->setFlashdata('success',"Proforma ($proforma_id)-> $customerName has been edited successfully");
+        return redirect()->to(base_url('proforma'));
 
     }
 
@@ -180,17 +203,17 @@ class Proforma extends BaseController {
         if($l=='ADMINISTRATOR'||$l=='SUPERVISOR'||$l=='ACCOUNTANT'||$l=='RECEPTIONIST'||$l=='MARKETEER'||$l=='PROCUREMENT') {
             $db=Database::connect();
             $row=$db->table('proforma')->getWhere(['invoiceId'=>$id]);
-            $customers=$db->table('customers')->getWhere(['deleted'=>0])->getResult('object');
+            //$customers=$db->table('customers')->getWhere(['deleted'=>0])->getResult('object');
             //$stock=$db->table('inventory')->get()->getResult('object');
             if (count($row->getResultArray()) != 1) {
                 return view('error', ['title'=>"Error", 'message'=>"Sorry, We couldn't find the invoice Id"]);
             }
             $customerId=$row->getResult()[0]->customerId;
-            $customerData=$db->table('customers')->getWhere(['id'=>$customerId])->getResult();
-            $data['customerData']=$customerData[0];
+            //$customerData=$db->table('proforma')->getWhere(['id'=>$customerId])->getResult();
+            //$data['customerData']=$customerData[0];
             $data['invoice_no']=$id;
             $data['invoice']=$row->getResult('object')[0];
-            $data['customers']=$customers;
+            //$data['customers']=$customers;
             $data['title']="Edit Proforma Details No. (" . $id . ")";
             return view('proforma/edit-proforma-details', $data);
         }
@@ -309,13 +332,13 @@ class Proforma extends BaseController {
         $items=$db->table('proformaitems2')->select('*')
             ->getWhere(['invoiceId'=>$id])->getResultArray();
         $discount=$db->table('proformadiscounts')->getWhere(['invoiceId'=>$id])->getResultArray();
-        $custData=$db->table('customers')
-            ->select('*')->join('proforma','proforma.customerId=customers.id','inner')
+        $custData=$db->table('proforma')
+            ->select('*')
             ->getWhere(['invoiceId'=>$id])->getResult('object')[0];
         $date=date('Y-m-d',strtotime($custData->date));
-        $before=$db->query("select proforma.invoiceId,proforma.date,customers.customerName from proforma left JOIN customers on proforma.customerId=customers.id where proforma.date<'$date' group by proforma.invoiceId asc ")
+        $before=$db->query("SELECT INVOICEID, DATE, CUSTOMERNAME FROM PROFORMA WHERE DATE<'$date' ORDER BY INVOICEID ASC")
             ->getResult();
-        $after=$db->query("select proforma.invoiceId,proforma.date,customers.customerName from proforma left JOIN customers on proforma.customerId=customers.id where proforma.date>'$date' group by proforma.invoiceId desc ")
+        $after=$db->query("SELECT INVOICEID, DATE, CUSTOMERNAME FROM PROFORMA WHERE DATE>'$date' ORDER BY INVOICEID DESC")
             ->getResult();
         //print_r($before);return;
         if(empty($items)){
@@ -352,7 +375,7 @@ class Proforma extends BaseController {
         return redirect()->to(base_url('pages/error'));
     }
 
-    public function generate($id){
+    /*public function generate($id){
         $db=Database::connect();
         $data['ttl']="TAX INVOICE";
         $data['words']=$this->request->getVar('words');
@@ -389,7 +412,7 @@ class Proforma extends BaseController {
         $pdf->WriteHTML(view('html_convert_pdf',$data));
         $pdf->Output("Invoice-".$id."-".date('Y-m-d').".pdf","D");
         return ;
-    }
+    }*/
 
     public function generate2($id){
         $db=Database::connect();
@@ -402,7 +425,7 @@ class Proforma extends BaseController {
         //$data['data']=$db->table('invoice')->getWhere(['invoiceId'=>$id])->getResult('object')[0];
         $data['invoiceId']=$id;
         $data['data']=$db->table('proforma')->
-        select('*')->join('customers','proforma.customerId=customers.id','inner')
+        select('*')
             ->join('users','proforma.preparedBy=users.id','inner')
             ->orderBy('date','DESC')->getWhere(['invoiceId'=>$id])->getResult('object')[0];
         $dta=$data['data'];

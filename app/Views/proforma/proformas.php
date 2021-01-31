@@ -4,6 +4,14 @@
     <div class="col-md-12 col-sm-12">
         <a href="<?=base_url('proforma/create')?>" class="btn btn-success"><i class="fa fa-plus" aria-hidden="true"></i> Create New Proforma</a>
     </div>
+    <?php if(\Config\Services::session()->has('success')): ?>
+        <div class="alert alert-success alert-dismissible fade show col-12" role="alert">
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+            <strong>Success! </strong> <?=\Config\Services::session()->get('success')?>
+        </div>
+    <?php endif; ?>
     <div class="col-12 mt-3">
         <div class="card shadow mb-4">
             <div class="card-header py-3">

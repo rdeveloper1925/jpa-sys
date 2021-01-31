@@ -52,7 +52,7 @@
                     </table>
                     <input type="hidden" value="<?=$invoice_no?>" id="invoiceNo">
                     <p style="color: darkred;font-size: 13px;">* Note that System will not proceed if no items are added</p>
-                    <a href="<?=base_url('proforma/tax_and_discounts/'.$invoice_no)?>" class='btn btn-md btn-success'>Done, Proceed discounts</a>
+                    <a href="<?=base_url('proforma/tax_and_discounts/'.$invoice_no)?>" class='btn btn-md btn-success'>Done, Proceed to discounts & taxes</a>
                 </div>
             </div>
         </div>
