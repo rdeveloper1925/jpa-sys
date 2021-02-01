@@ -32,19 +32,19 @@ class Reports extends BaseController {
                 $r=$db->query("SELECT PROFORMA.INVOICEID AS ID,
                            PROFORMA.DATE AS DATE,
                            PROFORMA.carRegNo AS REG,
-                           CUSTOMERS.CUSTOMERNAME AS CUSTOMER_NAME,
+                           PROFORMA.customerName AS CUSTOMER_NAME,
                            PROFORMA.carRegNo AS REGNO,
                            PROFORMA.lpoNo AS LPO,
                            PROFORMA.narration AS NARRATION,
                            PROFORMA.CURRENCY AS CURRENCY FROM PROFORMA
-                        LEFT JOIN CUSTOMERS ON PROFORMA.customerId=customers.id WHERE PROFORMA.DATE BETWEEN '$from' and '$to'
+                         WHERE PROFORMA.DATE BETWEEN '$from' and '$to'
                         AND PROFORMA.customerId=$customer")->getResultArray();
             }
             else{
                 $r=$db->query("SELECT PROFORMA.INVOICEID AS ID,
                            PROFORMA.DATE AS DATE,
                            PROFORMA.carRegNo AS REG,
-                           CUSTOMERS.CUSTOMERNAME AS CUSTOMER_NAME,
+                           proforma.customerName AS CUSTOMER_NAME,
                            PROFORMA.carRegNo AS REGNO,
                            PROFORMA.lpoNo AS LPO,
                            PROFORMA.narration AS NARRATION,

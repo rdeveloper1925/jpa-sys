@@ -16,7 +16,8 @@
   <!-- Custom styles for this template-->
   <link href="<?=base_url('assets/css/sb-admin-2.min.css')?>" rel="stylesheet">
   <link href="<?=base_url('assets/vendor/datatables/dataTables.bootstrap4.min.css')?>" rel="stylesheet">
-	<style>
+	<?php $this->renderSection('css')?>
+    <style>
 		.my-nav{
 			font-weight: bolder;font-size: 17px;
 		}
@@ -77,6 +78,12 @@
             <a class="nav-link" href="<?=base_url('proforma')?>">
                 <i class="fas fa-fw fa-clipboard-list"></i>
                 <span class="my-nav">Proforma Invoices</span></a>
+        </li>
+
+        <li class="nav-item">
+            <a class="nav-link" href="<?=base_url('finance')?>">
+                <i class="fas fa-fw fa-money-bill"></i>
+                <span class="my-nav">Financials </span></a>
         </li>
 
 		<li class="nav-item">
@@ -230,6 +237,7 @@
      "paging":false
    })
    </script>
+    <?php $this->renderSection('js')?>
 
 </body>
 
