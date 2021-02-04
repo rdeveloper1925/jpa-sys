@@ -62,6 +62,15 @@
                         </div>
                         <hr>
                         <div class="form-group col-4">
+                            <label for="">Proforma Number:</label>
+                            <select name="proformaId" class="form-control">
+                                <option value="-" selected>Not Available</option>
+                                <?php foreach ($proformae as $s): ?>
+                                    <option value="<?=$s->invoiceId?>"><?=$s->customerName.' = '.$s->invoiceId?></option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                        <div class="form-group col-4">
                             <label for="">Date: </label>
                             <input type="date" class="form-control" name="date" required>
                         </div>

@@ -46,6 +46,7 @@ class Invoices extends BaseController {
         $l=$session->get('accessLevel');
         if($l=='ADMINISTRATOR'||$l=='SUPERVISOR'||$l=='ACCOUNTANT'||$l=='RECEPTIONIST'||$l=='MARKETEER'||$l=='PROCUREMENT') {
             $db=Database::connect();
+            $proformae=$db->table('proforma')->select('invoiceId,customerName')->get()->getResultObject();
             $row=$db->table('invoice')->getWhere(['invoiceId'=>$id]);
             if (count($row->getResultArray()) != 1) {
                 return view('error', ['title'=>"Error", 'message'=>"Sorry, We couldn't find the invoice Id"]);
@@ -54,6 +55,7 @@ class Invoices extends BaseController {
             //$customerData=$db->table('customers')->getWhere(['id'=>$customerId])->getResult();
             //$data['customerData']=$row->getResultObject()[0];
             $data['invoice_no']=$id;
+            $data['proformae']=$proformae;
             $data['invoice']=$row->getResult('object')[0];
             $data['title']="Edit Invoice Details. (" . $id . ")";
             return view('content/edit-invoice-details', $data);
@@ -66,8 +68,9 @@ class Invoices extends BaseController {
         $l=$session->get('accessLevel');
         if($l=='ADMINISTRATOR'||$l=='SUPERVISOR'||$l=='ACCOUNTANT'||$l=='RECEPTIONIST'||$l=='MARKETEER'||$l=='PROCUREMENT') {
             $db=Database::connect();
+            $proformae=$db->table('proforma')->select('invoiceId,customerName')->get()->getResultObject();
             $customers=$db->table('customers')->getWhere(['deleted'=>0])->getResult('object');
-            return view('content/create-invoice', ['title'=>'Tax Invoices - Create', 'customers'=>$customers]);
+            return view('content/create-invoice', ['title'=>'Tax Invoices - Create','proformae'=>$proformae, 'customers'=>$customers]);
         }
         return redirect()->to(base_url('pages/error'));
 	}
@@ -76,8 +79,8 @@ class Invoices extends BaseController {
         $logger=new Logger('errors');
         $logger->pushHandler(new StreamHandler('Logs/invoices.log', Logger::INFO));
         $db=Database::connect();
-        $db->table('proformainvoicenumbers')->insert(['status'=>1]);
-        $proformaId=$db->insertID();
+        //$db->table('proformainvoicenumbers')->insert(['status'=>1]);
+        //$proformaId=$db->insertID();
 		$invoice=array(
             'customerName'=>$this->request->getVar('customerName'),
             'contactPerson'=>$this->request->getVar('contactPerson'),
@@ -96,20 +99,9 @@ class Invoices extends BaseController {
 			'carType'=>$this->request->getVar('carType'),
 			'mileage'=>$this->request->getVar('mileage'),
             'preparedBy'=>\Config\Services::session()->get('id'),
-            'proformaId'=>$proformaId,
+            'proformaId'=>$this->request->getVar('proformaId'),
             'narration'=>$this->request->getVar('narration')
-		);/*
-		$customer=$db->table('customers')->getWhere(['id'=>$this->request->getVar('customerId')])->getResult('object')[0];
-		//print_r($customer);
-		$custDetails=array(
-		    'contactPerson'=>$customer->contactPerson,
-            'address'=>$customer->address,
-            'areaCountry'=>$customer->areaCountry,
-            'phone'=>$customer->phone,
-            'email'=>$customer->email,
-            'tinNo'=>$customer->tinNo
-        );
-		$db->table('customers')->update($custDetails,['id'=>$this->request->getVar('customerId')]);*/
+		);
 		$db->table('invoice')->insert($invoice);
 		$invoiceId=$db->insertID();
 		$custName=$invoice['customerName'];
@@ -241,6 +233,7 @@ class Invoices extends BaseController {
         $logger->pushHandler(new StreamHandler('Logs/invoices.log', Logger::INFO));
         $custId=$this->request->getVar('custId');
         $invoice=array(
+            'proformaId'=>$this->request->getVar('proformaId'),
             'contactPerson'=>$this->request->getVar('contactPerson'),
             'customerName'=>$this->request->getVar('customerName'),
             'address'=>$this->request->getVar('address'),

@@ -451,7 +451,7 @@ class Proforma extends BaseController {
 										</tr>
 									</table>', 'E');
 
-        $pdf->WriteHTML(view('html_convert_pdf',$data));
+        $pdf->WriteHTML(view('html_convert_pdf_proforma',$data));
         $pdf->Output("Proforma Invoice-".$id."-".date('Y-m-d').".pdf","D");
         return ;
     }

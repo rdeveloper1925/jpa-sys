@@ -98,7 +98,6 @@
 				CONTACT PERSON: <b><?=$data->contactPerson?></b><br>
 				MODE OF PAYMENT: <b><?=$data->modeOfPayment?></b><br>
 				MILEAGE: <b><?=$data->mileage?></b><br>
-                PROFORMA NO: <b><?=$data->proformaId?></b>
 			</td>
 		</tr>
 		<tr>

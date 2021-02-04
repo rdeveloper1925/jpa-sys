@@ -83,6 +83,10 @@ $this->section('content') ?>
 							<td sytle="padding-right:9px"><b>Car Registration:</b></td>
 							<td><?=$data->carRegNo?></td>
 						</tr>
+                        <tr>
+                            <td sytle="padding-right:9px"><b>Proforma Number:</b></td>
+                            <td><?=$data->proformaId?></td>
+                        </tr>
 					</table>
 				</div>
 				<div class="container col-md-12">

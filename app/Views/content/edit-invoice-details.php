@@ -62,6 +62,19 @@
                             <input type="date" class="form-control" name="date" value="<?=date('Y-m-d',strtotime($invoice->date))?>" required>
                         </div>
                         <div class="form-group col-4">
+                            <label for="">Proforma Number:</label>
+                            <select name="proformaId" class="form-control">
+                                <option value="<?=$invoice->proformaId?>" selected><?=$invoice->proformaId?></option>
+                                <?php foreach ($proformae as $s): ?>
+                                    <option value="<?=$s->invoiceId?>"><?=$s->customerName.' = '.$s->invoiceId?></option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                        <div class="form-group col-4">
+                            <label for="">Proforma number: </label>
+                            <input type="number" class="form-control" name="proformaId" value="<?=$invoice->proformaId?>" />
+                        </div>
+                        <div class="form-group col-4">
                             <label for="">Currency: </label>
                             <input type="text" class="form-control" name="currency" value="<?=$invoice->currency?>" required>
                         </div>
