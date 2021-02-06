@@ -1,9 +1,14 @@
 <?php $this->extend('layouts/app') ?>
 <?php $this->section('content'); ?>
 <div class="row">
-    <div class="col-md-12 col-sm-12">
+    <div class="col-md-6 col-sm-6">
         <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#modal-create"><i class="fa fa-plus" aria-hidden="true"></i>
             Create New Entry
+        </button>
+    </div>
+    <div class="col-6 float-right">
+        <button type="button" class="btn btn-success" data-toggle="modal" data-target="#reportSelector">
+            <i class="fa fa-clipboard-list"></i> View Financial Reports
         </button>
     </div>
     <?php if(\Config\Services::session()->has('success')): ?>
@@ -73,8 +78,8 @@
                                 <td><?=$f->cleared?"CLEARED":"NOT CLEARED"?></td>
                                 <td><?=date('d-M-y',strtotime($f->date))?></td>
                                 <td>
-                                    <button onclick="fetchEntry(<?=$f->id?>)" type="button" class="btn btn-primary" data-toggle="modal" data-target="#modal-view"><i class="fa fa-eye" aria-hidden="true"></i>View </button>
-                                    <button onclick="fetchEntry_edit(<?=$f->id?>)" class="btn btn-warning" data-toggle="modal" data-target="#modal-edit"><i class="fa fa-pen-nib" aria-hidden="true"></i>Edit </button>
+                                    <button onclick="fetchEntry(<?=$f->id?>)" type="button" class="btn btn-sm btn-primary" data-toggle="modal" data-target="#modal-view"><i class="fa fa-eye" aria-hidden="true"></i>View </button>
+                                    <button onclick="fetchEntry_edit(<?=$f->id?>)" class="btn btn-sm btn-warning" data-toggle="modal" data-target="#modal-edit"><i class="fa fa-pen-nib" aria-hidden="true"></i>Edit </button>
                                     <a href="#" onclick="del(<?=$f->id?>)" class="btn btn-sm btn-danger"><i class="fa fa-trash" aria-hidden="true"></i>Delete </a>
                                     </td>
                             </tr>
@@ -379,6 +384,37 @@
     </div>
 </div>
 
+<!-- Report Selector modal -->
+<div class="modal fade" id="reportSelector" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLongTitle">Select Report</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form method="post" action="<?=base_url('finance/view_report')?>">
+                    <div class="form-group">
+                        <label>Report type:</label>
+                        <select class="form-control select2-dropdown" name="reportType">
+                            <option value="confirmed">Confirmed Jobs</option>
+                            <option value="unconfirmed">UnConfirmed Jobs</option>
+                            <option value="cleared">Cleared Balances</option>
+                            <option value="uncleared">Uncleared Balances</option>
+                            <option value="confirmedUncleared">Confirmed but Balance Not yet cleared</option>
+                            <option value="confirmedCleared">Confirmed and Balance Cleared </option>
+                        </select>
+                    </div>
+            </div>
+            <div class="modal-footer">
+                <button type="submit" class="btn btn-primary">Save changes</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
 
 <script>
     function fetchCustomers() {

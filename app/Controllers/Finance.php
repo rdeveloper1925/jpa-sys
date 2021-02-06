@@ -103,4 +103,12 @@ class Finance extends BaseController{
         $logger->info("Financial entry with id=$id has been deleted",['maker'=>session()->get('fullName')]);
         return json_encode(['success'=>1,'message'=>'Financial entry deleted successfully']);
     }
+
+    public function view_report(){
+        $logger=new Logger('errors');
+        $logger->pushHandler(new StreamHandler('Logs/Finance.log', Logger::INFO));
+        $db=Database::connect();
+        //return json_encode($this->request->getPost());
+        return view('visuals/index',['title'=>'visualizations']);
+    }
 }
