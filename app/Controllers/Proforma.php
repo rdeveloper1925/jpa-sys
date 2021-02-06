@@ -121,14 +121,33 @@ class Proforma extends BaseController {
             'proformaId'=>$proformaId,
             'narration'=>$this->request->getVar('narration')
         );
-        //$db->table('customers')->update($custDetails,['id'=>$this->request->getVar('customerId')]);
         $db->table('proforma')->insert($invoice);
-        //return json_encode($invoice);
+        $invoiceId=$db->insertID();
+        $finance=array(
+            'date'=>$this->request->getVar('date'),
+            'proformaNo'=>$invoiceId,
+            'lpoNo'=>$this->request->getVar('lpo'),
+            'customerId'=>$this->request->getVar('customerId'),
+            'customerName'=>$this->request->getVar('customerName'),
+            'contactPerson'=>$this->request->getVar('contactPerson'),
+            'tinNo'=>$this->request->getVar('tinNo'),
+            'address'=>$this->request->getVar('address'),
+            'areaCountry'=>$this->request->getVar('areaCountry'),
+            'phone'=>$this->request->getVar('phone'),
+            'email'=>$this->request->getVar('email'),
+            'confirmed'=>0,
+            'withholdingTax'=>0,
+            'vat'=>0,
+            'totalpayable'=>0,
+            'cleared'=>0,
+            'carRegNo'=>strtoupper($this->request->getVar('carRegNo')),
+        );
+        $db->table('finance')->insert($finance);
+        $financeId=$db->insertID();
         if($db->affectedRows()==1){
-            $invoiceId=$db->insertID();
             $logger->info("New proforma ($invoiceId) created",['maker'=>\session()->get('fullName')]);
             //session()->setFlashdata('success',"New proforma ($invoiceId) created");
-            return redirect()->to(base_url('proforma/invoice_items/'.$invoiceId));
+            return redirect()->to(base_url('proforma/invoice_items/'.$invoiceId.'/'.$financeId));
         }else{
             echo "Input failed";
             return null;
@@ -158,11 +177,26 @@ class Proforma extends BaseController {
             'mileage'=>$this->request->getVar('mileage'),
             'preparedBy'=>\Config\Services::session()->get('id'),
             'narration'=>$this->request->getVar('narration')
-        );//return print_r($this->request->getVar('invoice_no'));
+        );
+        //updating the finance table as well
+        $finance=array(
+            'contactPerson'=>$this->request->getVar('contactPerson'),
+            'customerName'=>$this->request->getVar('customerName'),
+            'address'=>$this->request->getVar('address'),
+            'areaCountry'=>$this->request->getVar('areaCountry'),
+            'phone'=>$this->request->getVar('phone'),
+            'email'=>$this->request->getVar('email'),
+            'tinNo'=>$this->request->getVar('tinNo'),
+            'date'=>$this->request->getVar('date'),
+            'lpoNo'=>$this->request->getVar('lpo'),
+            'carRegNo'=>strtoupper($this->request->getVar('carRegNo')),
+        );
+        //return print_r($this->request->getVar('invoice_no'));
         //db->table('customers')->update($customer,['id'=>$custId]);
         $proforma_id=$this->request->getVar('invoice_no');
         $customerName=$this->request->getVar('customerName');
         $db->table('proforma')->update($invoice,['invoiceId'=>$this->request->getVar('invoice_no')]);
+        $db->table('finance')->update($finance,['proformaNo'=>$this->request->getVar('invoice_no')]);
         $logger->info("Proforma ($proforma_id) of $customerName has been edited",['maker'=>session()->get('fullName')]);
         session()->setFlashdata('success',"Proforma ($proforma_id)-> $customerName has been edited successfully");
         return redirect()->to(base_url('proforma'));
@@ -331,6 +365,24 @@ class Proforma extends BaseController {
                     ->getWhere(['proforma.invoiceId'=>$id])->getResult('object')[0];
         $items=$db->table('proformaitems2')->select('*')
             ->getWhere(['invoiceId'=>$id])->getResultArray();
+        //calculating stuff for finance
+        $total=0;
+        foreach($items as $item){
+            $total=$total+$item['total'];
+        }
+        $vat=($total*18)/100;
+        $gtotal=$total+$vat;
+        if($gtotal>=1000000){
+            $wtax=(6*$gtotal)/100;
+        }else{
+            $wtax=0;
+        }
+        $finance=array(
+            'totalPayable'=>$gtotal,
+            'vat'=>$vat,
+            'withholdingTax'=>$wtax
+        );
+        $db->table('finance')->update($finance,['proformaNo'=>$id]); //updating the finance table
         $discount=$db->table('proformadiscounts')->getWhere(['invoiceId'=>$id])->getResultArray();
         $custData=$db->table('proforma')
             ->select('*')

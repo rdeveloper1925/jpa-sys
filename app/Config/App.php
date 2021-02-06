@@ -21,7 +21,7 @@ class App extends BaseConfig
 	|
 	*/
 	//public $baseURL = 'http://192.168.0.1/code4/';
-    public $baseURL = 'http://localhost/code4/';
+    public $baseURL = 'http://localhost:8081/code4/';
 
 	/*
 	|--------------------------------------------------------------------------
