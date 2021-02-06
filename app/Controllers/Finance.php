@@ -39,7 +39,7 @@ class Finance extends BaseController{
             'customerId'=>$this->request->getVar('customerId'),
             'customerName'=>$this->request->getVar('customerName'),
             'confirmed'=>$this->request->getVar('confirmed'),
-            'withholdingTax'=>$this->request->getVar('witholdingTax'),
+            'withholdingTax'=>$this->request->getVar('withholdingTax'),
             'vat'=>$this->request->getVar('vat'),
             'totalPayable'=>$this->request->getVar('totalPayable'),
             'cleared'=>$this->request->getVar('cleared'),
@@ -78,7 +78,7 @@ class Finance extends BaseController{
             'customerId'=>$this->request->getVar('customerId'),
             'customerName'=>$this->request->getVar('customerName'),
             'confirmed'=>$this->request->getVar('confirmed'),
-            'withholdingTax'=>$this->request->getVar('witholdingTax'),
+            'withholdingTax'=>$this->request->getVar('withholdingTax'),
             'vat'=>$this->request->getVar('vat'),
             'totalPayable'=>$this->request->getVar('totalPayable'),
             'cleared'=>$this->request->getVar('cleared'),
@@ -93,5 +93,14 @@ class Finance extends BaseController{
         $logger->info("Finance entry edited successfully by ",['maker'=>session()->get('fullName')]);
         session()->setFlashdata('success','Entry edited successfully');
         return redirect()->to(base_url('finance'));
+    }
+
+    public function delete($id=0){
+        $db=Database::connect();
+        $logger=new Logger('errors');
+        $logger->pushHandler(new StreamHandler('Logs/Finance.log', Logger::INFO));
+        $db->table('finance')->delete(['id'=>$id]);
+        $logger->info("Financial entry with id=$id has been deleted",['maker'=>session()->get('fullName')]);
+        return json_encode(['success'=>1,'message'=>'Financial entry deleted successfully']);
     }
 }

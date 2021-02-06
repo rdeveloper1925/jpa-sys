@@ -64,9 +64,9 @@
                         <div class="form-group col-4">
                             <label for="">Proforma Number:</label>
                             <select name="proformaId" class="form-control">
-                                <option value="-" selected>Not Available</option>
+                                <option value="0" selected>Not Available</option>
                                 <?php foreach ($proformae as $s): ?>
-                                    <option value="<?=$s->invoiceId?>"><?=$s->customerName.' = '.$s->invoiceId?></option>
+                                    <option value="<?=$s->invoiceId?>"><?=$s->invoiceId.' = '.$s->customerName?></option>
                                 <?php endforeach; ?>
                             </select>
                         </div>

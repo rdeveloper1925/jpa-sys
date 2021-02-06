@@ -51,6 +51,7 @@ class Invoices extends BaseController {
             if (count($row->getResultArray()) != 1) {
                 return view('error', ['title'=>"Error", 'message'=>"Sorry, We couldn't find the invoice Id"]);
             }
+
             $customerId=$row->getResult()[0]->customerId;
             //$customerData=$db->table('customers')->getWhere(['id'=>$customerId])->getResult();
             //$data['customerData']=$row->getResultObject()[0];
@@ -79,8 +80,6 @@ class Invoices extends BaseController {
         $logger=new Logger('errors');
         $logger->pushHandler(new StreamHandler('Logs/invoices.log', Logger::INFO));
         $db=Database::connect();
-        //$db->table('proformainvoicenumbers')->insert(['status'=>1]);
-        //$proformaId=$db->insertID();
 		$invoice=array(
             'customerName'=>$this->request->getVar('customerName'),
             'contactPerson'=>$this->request->getVar('contactPerson'),
@@ -102,10 +101,33 @@ class Invoices extends BaseController {
             'proformaId'=>$this->request->getVar('proformaId'),
             'narration'=>$this->request->getVar('narration')
 		);
-		$db->table('invoice')->insert($invoice);
-		$invoiceId=$db->insertID();
+        $db->table('invoice')->insert($invoice);
+        $invoiceId=$db->insertID();
+		//feeding the finance table as well
+        $finance=array(
+            'date'=>$this->request->getVar('date'),
+            'proformaNo'=>$this->request->getVar('proformaId'),
+            'taxInvoiceNo'=>$invoiceId,
+            'lpoNo'=>$this->request->getVar('lpo'),
+            'customerId'=>$this->request->getVar('customerId'),
+            'customerName'=>$this->request->getVar('customerName'),
+            'contactPerson'=>$this->request->getVar('contactPerson'),
+            'tinNo'=>$this->request->getVar('tinNo'),
+            'address'=>$this->request->getVar('address'),
+            'areaCountry'=>$this->request->getVar('areaCountry'),
+            'phone'=>$this->request->getVar('phone'),
+            'email'=>$this->request->getVar('email'),
+            'confirmed'=>0,
+            'withholdingTax'=>0,
+            'vat'=>0,
+            'totalpayable'=>0,
+            'cleared'=>0,
+            'carRegNo'=>strtoupper($this->request->getVar('carRegNo')),
+        );
+        $db->table('finance')->insert($finance);
+
 		$custName=$invoice['customerName'];
-		$logger->info("New tax invoice ($invoiceId) for $custName created",['maker'=>session()->get('fullName')]);
+		$logger->info("New tax invoice ($invoiceId) for $custName created & inserted into finance table",['maker'=>session()->get('fullName')]);
 		if($this->request->getVar('existingData')=='existing'){
 		    return redirect()->to(base_url('invoices/existing/'.$invoiceId));
 		}else{
@@ -253,6 +275,21 @@ class Invoices extends BaseController {
         );
         $db->table('invoice')->update($invoice,['invoiceId'=>$this->request->getVar('invoiceId')]);
         $invoice_id=$this->request->getVar('invoiceId');
+        //updating the finance table as well
+        $finance=array(
+            'contactPerson'=>$this->request->getVar('contactPerson'),
+            'customerName'=>$this->request->getVar('customerName'),
+            'address'=>$this->request->getVar('address'),
+            'areaCountry'=>$this->request->getVar('areaCountry'),
+            'phone'=>$this->request->getVar('phone'),
+            'email'=>$this->request->getVar('email'),
+            'tinNo'=>$this->request->getVar('tinNo'),
+            'date'=>$this->request->getVar('date'),
+            'lpoNo'=>$this->request->getVar('lpo'),
+            'carRegNo'=>strtoupper($this->request->getVar('carRegNo')),
+        );
+        $db->table('finance')->update($finance,['taxInvoiceNo'=>$invoice_id]);
+        //done updating in finance table as well
         $logger->info("Invoice $invoice_id edited",['maker'=>session()->get('fullName')]);
         session()->setFlashdata('success',"Invoice $invoice_id has been edited successfully");
         return redirect()->to(base_url('invoices'));
@@ -397,7 +434,27 @@ class Invoices extends BaseController {
                     ->getWhere(['invoice.invoiceId'=>$id])->getResult('object')[0];
 		$items=$db->table('invoiceitems2')->select('*')
                     ->getWhere(['invoiceId'=>$id])->getResultArray();
-		$discount=$db->table('discounts')->getWhere(['invoiceId'=>$id])->getResultArray();
+        //calculating stuff for finance
+        $total=0;
+        foreach($items as $item){
+            $total=$total+$item['total'];
+        }
+        $vat=($total*18)/100;
+        $gtotal=$total+$vat;
+        if($gtotal>=1000000){
+            $wtax=(6*$gtotal)/100;
+        }else{
+            $wtax=0;
+        }
+        $finance=array(
+            'totalPayable'=>$gtotal,
+            'vat'=>$vat,
+            'withholdingTax'=>$wtax,
+            'confirmed'=>1
+        );
+        $db->table('finance')->update($finance,['taxInvoiceNo'=>$id]); //updating the finance table
+        //done calculating stuff for finance
+        $discount=$db->table('discounts')->getWhere(['invoiceId'=>$id])->getResultArray();
 		$invoiceData=$db->table('invoice')
                 ->select('*')
                 ->getWhere(['invoiceId'=>$id])->getResult('object')[0];

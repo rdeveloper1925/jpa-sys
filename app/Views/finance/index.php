@@ -22,6 +22,10 @@
             <strong>Error! </strong> <?=\Config\Services::session()->get('fail')?>
         </div>
     <?php endif; ?>
+    <div id="alerter" class="alert alert-success alert-dismissible fade show" style="display: none">
+        <strong>Success!</strong> The accounting entry has been deleted successfull.
+        <button type="button" class="close" data-dismiss="alert">&times;</button>
+    </div>
     <div class="col-12 mt-3">
         <div class="card shadow mb-4">
             <div class="card-header py-3">
@@ -72,8 +76,7 @@
                                     <button onclick="fetchEntry(<?=$f->id?>)" type="button" class="btn btn-primary" data-toggle="modal" data-target="#modal-view"><i class="fa fa-eye" aria-hidden="true"></i>View </button>
                                     <button onclick="fetchEntry_edit(<?=$f->id?>)" class="btn btn-warning" data-toggle="modal" data-target="#modal-edit"><i class="fa fa-pen-nib" aria-hidden="true"></i>Edit </button>
                                     <a href="#" onclick="del(<?=$f->id?>)" class="btn btn-sm btn-danger"><i class="fa fa-trash" aria-hidden="true"></i>Delete </a>
-                                    <a href="<?=base_url('proforma/custdetails_edit/'.$f->id)?>" class="btn btn-warning">Edit details</a>
-                                </td>
+                                    </td>
                             </tr>
                         <?php endforeach; ?>
                         <?php endif; ?>
@@ -433,7 +436,6 @@
             "JSON"
         );
     }
-
     function fetchEntry_edit(id){
         $.post("<?=base_url('finance/fetchEntry')?>", {id:id},
             function (data, textStatus, jqXHR) {
@@ -470,6 +472,22 @@
             },
             "JSON"
         );
+    }
+    function del(id){
+        var confirmation=confirm("Are you sure you want to delete this entry?");
+        if(confirmation){
+            //alert('deleting');
+            $.get("<?=base_url('finance/delete')?>"+"/"+id,
+            function (data){
+                console.log(data);
+                if(data.success){
+                    $("#alerter").css('display','block');
+                }
+            },"JSON");
+
+        }else{
+            return;
+        }
     }
 </script>
 <?php $this->endsection(); ?>

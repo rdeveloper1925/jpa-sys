@@ -2,3 +2,4 @@
 [2021-01-31T02:27:47.653023-06:00] errors.INFO: Invoice 7978 edited {"maker":"Administrator"} []
 [2021-02-04T11:48:04.900356-06:00] errors.INFO: New tax invoice (8759) for Education Service Commission created {"maker":"Administrator"} []
 [2021-02-04T13:41:34.992294-06:00] errors.INFO: Invoice 8759 edited {"maker":"Administrator"} []
+[2021-02-06T01:39:10.343510-06:00] errors.INFO: New tax invoice (8760) for Uganda Bureau of Statistics created & inserted into finance table {"maker":"Administrator"} []
