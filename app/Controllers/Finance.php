@@ -23,6 +23,14 @@ class Finance extends BaseController{
         $logger=new Logger('errors');
         $logger->pushHandler(new StreamHandler('Logs/Finance.log', Logger::INFO));
         $db=Database::connect();
+        //checking if invoice already exists
+        $taxInvoiceNo=$this->request->getVar('taxInvoiceNo');
+        $proformaNo=$this->request->getVar('proformaNo');
+        $rs=$db->query("SELECT * FROM finance WHERE proformaNo=$proformaNo OR taxInvoiceNo=$taxInvoiceNo")->getResultArray();
+        if(!empty($rs)){
+            session()->setFlashdata('fail',"The supplied tax Invoice number or proforma number already exists");
+            return redirect()->to(base_url('finance'));
+        }
         $entry=array(
             'date'=>$this->request->getVar('date'),
             'proformaNo'=>$this->request->getVar('proformaNo'),
@@ -51,9 +59,39 @@ class Finance extends BaseController{
     public function fetchEntry(){
         $db=Database::connect();
         $id=$this->request->getVar('id');
-        $entry=$db->table('finance')->getWhere(['id'=>1])->getResultObject()[0];
+        $entry=$db->table('finance')->getWhere(['id'=>$id])->getResultObject()[0];
         $data['success']=1;
         $data['entry']=$entry;
         return json_encode($data);
+    }
+
+    public function update(){
+        $logger=new Logger('errors');
+        $logger->pushHandler(new StreamHandler('Logs/Finance.log', Logger::INFO));
+        $entryId=$this->request->getVar('entryId');
+        $db=Database::connect();
+        $entry=array(
+           // 'date'=>$this->request->getVar('date'),
+            'proformaNo'=>$this->request->getVar('proformaNo'),
+            'taxInvoiceNo'=>$this->request->getVar('taxInvoiceNo'),
+            'lpoNo'=>$this->request->getVar('lpoNo'),
+            'customerId'=>$this->request->getVar('customerId'),
+            'customerName'=>$this->request->getVar('customerName'),
+            'confirmed'=>$this->request->getVar('confirmed'),
+            'withholdingTax'=>$this->request->getVar('witholdingTax'),
+            'vat'=>$this->request->getVar('vat'),
+            'totalPayable'=>$this->request->getVar('totalPayable'),
+            'cleared'=>$this->request->getVar('cleared'),
+            'email'=>$this->request->getVar('email'),
+            'phone'=>$this->request->getVar('phone'),
+            'areaCountry'=>$this->request->getVar('areaCountry'),
+            'address'=>$this->request->getVar('address'),
+            'tinNo'=>$this->request->getVar('tinNo'),
+            'contactPerson'=>$this->request->getVar('contactPerson')
+        );
+        $db->table('finance')->update($entry,['id'=>$entryId]);
+        $logger->info("Finance entry edited successfully by ",['maker'=>session()->get('fullName')]);
+        session()->setFlashdata('success','Entry edited successfully');
+        return redirect()->to(base_url('finance'));
     }
 }
