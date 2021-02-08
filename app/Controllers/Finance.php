@@ -4,6 +4,9 @@ use Config\Database;
 use Monolog\Handler\StreamHandler;
 use Monolog\Logger;
 use org\bovigo\vfs\vfsStreamContainerIterator;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Exception;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
 class Finance extends BaseController{
     public function match(){
@@ -184,8 +187,9 @@ class Finance extends BaseController{
                     $selectedReport= 'Confirmed and Cleared';
                     break;
                 case '*':
-                    $report = $db->table('finance')->get()->getResultObject();
-                    $selectedReport= 'All';
+                    //$report = $db->table('finance')->get()->getResultObject();
+                    //$selectedReport= 'All';
+                    return redirect()->to(base_url('finance/allCustomersAllReports'));
                     break;
                 default:
                     return view('error',['message'=>'Unknown case']);
@@ -194,5 +198,106 @@ class Finance extends BaseController{
         }
         //return json_encode($this->request->getPost());
         return view('visuals/index',['title'=>'visualizations']);
+    }
+
+    public function allCustomersAllReports(){
+        $db=Database::connect();
+        $confirmed=$db->query('SELECT COUNT(*) AS VOLUME,SUM(totalPayable) AS VALUE FROM finance WHERE CONFIRMED=1')->getResultObject()[0];
+        $cleared=$db->query('SELECT COUNT(*) AS VOLUME, SUM(totalPayable) AS VALUE FROM finance WHERE CLEARED=1')->getResultObject()[0];
+        $confirmedAndCleared=$db->query('SELECT COUNT(*) AS VOLUME, SUM(totalPayable) AS VALUE FROM finance WHERE CLEARED=1 AND confirmed=1')->getResultObject()[0];
+        $unconfirmedAndUnCleared=$db->query('SELECT COUNT(*) AS VOLUME, SUM(totalPayable) AS VALUE FROM finance WHERE CLEARED=0 AND confirmed=0')->getResultObject()[0];
+
+        $data['title']="Showing Information for All Customers and All Reports";
+        $data['entries']=$db->table('finance')->countAll();
+        $data['entryValue']=$db->query('SELECT SUM(totalPayable) as VALUE FROM FINANCE')->getResultObject()[0]->VALUE;
+        $data['confirmedVolume']=$confirmed->VOLUME;
+        $data['confirmedValue']=$confirmed->VALUE;
+        $data['unconfirmedVolume']=$data['entries']-$confirmed->VOLUME;
+        $data['unconfirmedValue']=$data['entryValue']-$confirmed->VALUE;
+        $data['clearedVolume']=$cleared->VOLUME;
+        $data['clearedValue']=$cleared->VALUE;
+        $data['unclearedVolume']=$data['entries']-$cleared->VOLUME;
+        $data['unclearedValue']=$data['entryValue']-$cleared->VALUE;
+        $data['confirmedAndClearedVolume']=$confirmedAndCleared->VOLUME;
+        $data['confirmedAndClearedValue']=$confirmedAndCleared->VALUE;
+        $data['confirmedAndUnClearedVolume']=$data['entries']-$confirmedAndCleared->VOLUME;
+        $data['confirmedAndUnClearedValue']=$data['entryValue']-$confirmedAndCleared->VALUE;
+        $data['unconfirmedAndUnClearedVolume']=$unconfirmedAndUnCleared->VOLUME;
+        $data['unconfirmedAndUnClearedValue']=$unconfirmedAndUnCleared->VALUE;
+        $data['trend']=$db->query("select count(*) as VOLUME,sum(totalPayable) AS VALUE, year(date) AS YEAR, date_format(date,'%b') AS MONTH from finance where cleared=1 group by year(date),month(date) order by year(date) desc LIMIT 12")->getResultObject();
+        $data['trendMaxValue']=$db->query("select max(VALUE) AS MAX_VALUE FROM (SELECT sum(totalPayable) AS VALUE FROM FINANCE finance where cleared=1 group by year(date),month(date) ORDER BY YEAR(DATE) DESC LIMIT 12) AS FIN2;")->getResultObject()[0]->MAX_VALUE+400000;
+        $data['customerId']='*';
+        return view('visuals/index',$data);
+    }
+
+    public function generate(){
+        $db=Database::connect();
+        $from=$this->request->getVar('from');
+        $to=$this->request->getVar('to');
+        $id=$this->request->getVar('customerId');
+        if($id=='*'){
+            //confirmed
+            $confirmedQuery="SELECT * FROM FINANCE WHERE CONFIRMED=1 and date between '$from' and '$to' ORDER BY DATE DESC";
+        }else{
+
+        }
+        $results=$db->query($confirmedQuery)->getResultObject();
+        $spreadsheet=new Spreadsheet();
+        $spreadsheet->getActiveSheet()->getColumnDimension('A')->getAutoSize();
+        $sheet=$spreadsheet->getActiveSheet();
+        $sheet->setTitle("Confirmed Jobs");
+        $sheet->mergeCells("A1:H1");
+        $sheet->setCellValue('A1',"CONFIRMED JOBS REPORT FROM $from to $to at JAPAN AUTO CARE");
+        $sheet->setCellValue('A2','ENTRY ID');
+        $sheet->setCellValue('B2','PROFORMA NO');
+        $sheet->getColumnDimension('B')->getAutoSize();
+        $sheet->setCellValue('C2','TAXINVOICE NO');
+        $sheet->getColumnDimension('C')->getAutoSize();
+        $sheet->setCellValue('D2','LPO NO');
+        $sheet->setCellValue('E2','CUSTOMER NAME');
+        $sheet->getColumnDimension('E')->getAutoSize();
+        $sheet->setCellValue('F2','CONFIRMED');
+        $sheet->getColumnDimension('F')->getAutoSize();
+        $sheet->setCellValue('G2','WITH HOLDING TAX');
+        $sheet->getColumnDimension('G')->getAutoSize();
+        $sheet->setCellValue('H2','VAT');
+        $sheet->getColumnDimension('H')->getAutoSize();
+        $sheet->setCellValue('I2','TOTAL PAYABLE');
+        $sheet->setCellValue('J2','CLEARED');
+        $sheet->setCellValue('K2','EMAIL');
+        $sheet->setCellValue('L2','PHONE');
+        $sheet->setCellValue('M2','CONTACT PERSON');
+        $sheet->setCellValue('N2','CAR REG NO');
+        $row=3;
+        foreach ($results as $r){
+            $sheet->setCellValue('A'."$row",$r->id);
+            $sheet->setCellValue('B'."$row",$r->proformaNo);
+            $sheet->setCellValue('C'."$row",$r->taxInvoiceNo);
+            $sheet->setCellValue('D'."$row",$r->lpoNo);
+            $sheet->setCellValue('E'."$row",$r->customerName);
+            $sheet->setCellValue('F'."$row",$r->confirmed);
+            $sheet->setCellValue('G'."$row",$r->withholdingTax);
+            $sheet->setCellValue('H'."$row",$r->vat);
+            $sheet->setCellValue('I'."$row",$r->totalPayable);
+            $sheet->setCellValue('J'."$row",$r->cleared);
+            $sheet->setCellValue('K'."$row",$r->email);
+            $sheet->setCellValue('L'."$row",$r->phone);
+            $sheet->setCellValue('M'."$row",$r->contactPerson);
+            $sheet->setCellValue('N'."$row",$r->carRegNo);
+            $row++;
+        }
+        $sheet2=$spreadsheet->createSheet();
+        $sheet2->setTitle("holla");
+
+        $writer=new Xlsx($spreadsheet);
+        $filename="REPORT.xlsx";
+        try {
+            header("Content-Disposition: attachment; filename=\"$filename\"");
+            header("Content-Type: application/vnd.ms-excel");
+            $writer->save("php://output");
+            exit();
+        } catch (Exception $e) {
+            print_r($e);
+        }
     }
 }
