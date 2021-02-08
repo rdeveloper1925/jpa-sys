@@ -104,6 +104,8 @@ class Invoices extends BaseController {
         $db->table('invoice')->insert($invoice);
         $invoiceId=$db->insertID();
 		//feeding the finance table as well
+        //checking if proforma was created
+        $check=$db->table('finance')->getWhere(['proformaNo'=>$this->request->getVar('proformaId')])->getResultArray();
         $finance=array(
             'date'=>$this->request->getVar('date'),
             'proformaNo'=>$this->request->getVar('proformaId'),
@@ -117,15 +119,18 @@ class Invoices extends BaseController {
             'areaCountry'=>$this->request->getVar('areaCountry'),
             'phone'=>$this->request->getVar('phone'),
             'email'=>$this->request->getVar('email'),
-            'confirmed'=>0,
+            'confirmed'=>1,
             'withholdingTax'=>0,
             'vat'=>0,
             'totalpayable'=>0,
             'cleared'=>0,
             'carRegNo'=>strtoupper($this->request->getVar('carRegNo')),
         );
-        $db->table('finance')->insert($finance);
-
+        if(empty($check)){
+            $db->table('finance')->insert($finance);
+        }else{
+            $db->table('finance')->update($finance,['proformaNo'=>$this->request->getVar('proformaId')]);
+        }
 		$custName=$invoice['customerName'];
 		$logger->info("New tax invoice ($invoiceId) for $custName created & inserted into finance table",['maker'=>session()->get('fullName')]);
 		if($this->request->getVar('existingData')=='existing'){

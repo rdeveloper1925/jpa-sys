@@ -104,10 +104,94 @@ class Finance extends BaseController{
         return json_encode(['success'=>1,'message'=>'Financial entry deleted successfully']);
     }
 
+    public function report_select(){
+        $db=Database::connect();
+        $customers=$db->table('customers')->select('customerName,id')->get()->getResultObject();
+        return view('finance/report_select',['title'=>'Select Report','customers'=>$customers]);
+    }
+
     public function view_report(){
         $logger=new Logger('errors');
         $logger->pushHandler(new StreamHandler('Logs/Finance.log', Logger::INFO));
         $db=Database::connect();
+        $customer=$this->request->getVar('customer');
+        $reportType=$this->request->getVar('reportType');
+        $selectedReport='';
+        if($customer != '*') {//if customer is specific
+            switch ($reportType) {//checking report type and generating it
+                case 'confirmed':
+                    $report = $db->table('finance')->select('count(*) as confirmed')->getWhere(['confirmed' => 1,'customerId'=>$customer])->getResultObject()[0];
+                    $selectedReport= 'Confirmed';
+                    return json_encode($report);
+                    break;
+                case 'unconfirmed':
+                    $report = $db->table('finance')->getWhere(['confirmed' => 0,'customerId'=>$customer])->getResultObject();
+                    $selectedReport= 'Not Confirmed';
+                    break;
+                case 'cleared':
+                    $report = $db->table('finance')->getWhere(['cleared' => 1,'customerId'=>$customer])->getResultObject();
+                    $selectedReport= 'Cleared';
+                    break;
+                case 'uncleared':
+                    $report = $db->table('finance')->getWhere(['cleared' => 0,'customerId'=>$customer])->getResultObject();
+                    $selectedReport= 'Not Cleared';
+                    break;
+                case 'confirmedUncleared':
+                    $report = $db->table('finance')->getWhere(['confirmed' => 1,'customerId'=>$customer, 'cleared' => 0])->getResultObject();
+                    $selectedReport= 'Confirmed but Not Cleared';
+                    break;
+                case 'confirmedCleared':
+                    $report = $db->table('finance')->getWhere(['confirmed' => 1,'customerId'=>$customer, 'cleared' => 1])->getResultObject();
+                    $selectedReport= 'Confirmed and Cleared';
+                    break;
+                case '*':
+                    $report = $db->table('finance')->getWhere(['customerId'=>$customer])->getResultObject();
+                    $selectedReport= 'All';
+                    break;
+                default:
+                    return view('error',['message'=>'Unknown case']);
+            }
+            //metrics= total, number of selected type,
+            $data['title']='Single Customer, '.$selectedReport.' Report';
+            $data['report']=$report;
+            $data['selectedReport']=$selectedReport;
+            return view('visuals/index',$data);
+
+        } else{//if all customers are required
+            switch ($reportType) {//checking report and generating it
+                case 'confirmed':
+                    $report = $db->table('finance')->getWhere(['confirmed' => 1])->getResultObject();
+                    $selectedReport= 'Confirmed';
+                    break;
+                case 'unconfirmed':
+                    $report = $db->table('finance')->getWhere(['confirmed' => 0])->getResultObject();
+                    $selectedReport= 'Not Confirmed';
+                    break;
+                case 'cleared':
+                    $report = $db->table('finance')->getWhere(['cleared' => 1])->getResultObject();
+                    $selectedReport= 'Cleared';
+                    break;
+                case 'uncleared':
+                    $report = $db->table('finance')->getWhere(['cleared' => 0])->getResultObject();
+                    $selectedReport= 'Not Cleared';
+                    break;
+                case 'confirmedUncleared':
+                    $report = $db->table('finance')->getWhere(['confirmed' => 1, 'cleared' => 0])->getResultObject();
+                    $selectedReport= 'Confirmed but Not Cleared';
+                    break;
+                case 'confirmedCleared':
+                    $report = $db->table('finance')->getWhere(['confirmed' => 1, 'cleared' => 1])->getResultObject();
+                    $selectedReport= 'Confirmed and Cleared';
+                    break;
+                case '*':
+                    $report = $db->table('finance')->get()->getResultObject();
+                    $selectedReport= 'All';
+                    break;
+                default:
+                    return view('error',['message'=>'Unknown case']);
+            }
+            return json_encode($report);
+        }
         //return json_encode($this->request->getPost());
         return view('visuals/index',['title'=>'visualizations']);
     }

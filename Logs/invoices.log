@@ -4,3 +4,5 @@
 [2021-02-04T13:41:34.992294-06:00] errors.INFO: Invoice 8759 edited {"maker":"Administrator"} []
 [2021-02-06T01:39:10.343510-06:00] errors.INFO: New tax invoice (8760) for Uganda Bureau of Statistics created & inserted into finance table {"maker":"Administrator"} []
 [2021-02-06T02:03:02.724113-06:00] errors.INFO: Invoice 8760 edited {"maker":"Administrator"} []
+[2021-02-06T07:07:26.757606-06:00] errors.INFO: New tax invoice (8774) for Uganda Bureau of Statistics created & inserted into finance table {"maker":"Administrator"} []
+[2021-02-06T08:08:28.910376-06:00] errors.INFO: New tax invoice (8775) for HESFB created & inserted into finance table {"maker":"Administrator"} []

@@ -7,9 +7,9 @@
         </button>
     </div>
     <div class="col-6 float-right">
-        <button type="button" class="btn btn-success" data-toggle="modal" data-target="#reportSelector">
+        <a href="<?=base_url('finance/report_select')?>" class="btn btn-success" >
             <i class="fa fa-clipboard-list"></i> View Financial Reports
-        </button>
+        </a>
     </div>
     <?php if(\Config\Services::session()->has('success')): ?>
         <div class="alert alert-success alert-dismissible fade show col-12" role="alert">
