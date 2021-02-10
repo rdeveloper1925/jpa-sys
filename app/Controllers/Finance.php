@@ -203,15 +203,6 @@ class Finance extends BaseController{
 
     public function allCustomersAllReports(){
         $db=Database::connect();
-        try {
-            $reader = IOFactory::createReader('Xlsx');
-            $spreadsheet=$reader->load('app/Views/reportTemplates/Financial_Report_template.xlsx');
-        } catch (\Exception $e) {
-        }
-    }
-
-    public function allCustomersAllReports_OLD(){
-        $db=Database::connect();
         $confirmed=$db->query('SELECT COUNT(*) AS VOLUME,SUM(totalPayable) AS VALUE FROM finance WHERE CONFIRMED=1')->getResultObject()[0];
         $cleared=$db->query('SELECT COUNT(*) AS VOLUME, SUM(totalPayable) AS VALUE FROM finance WHERE CLEARED=1')->getResultObject()[0];
         $confirmedAndCleared=$db->query('SELECT COUNT(*) AS VOLUME, SUM(totalPayable) AS VALUE FROM finance WHERE CLEARED=1 AND confirmed=1')->getResultObject()[0];
@@ -241,6 +232,56 @@ class Finance extends BaseController{
     }
 
     public function generate(){
+        $db=Database::connect();
+        $from=$this->request->getVar('from');
+        $to=$this->request->getVar('to');
+        $id=$this->request->getVar('customerId');
+        $paid=$db->query("SELECT * FROM FINANCE WHERE CONFIRMED=1 AND CLEARED=1 AND DATE BETWEEN '$from' and '$to'")->getResultObject();
+        $unpaid=$db->query("SELECT * FROM FINANCE WHERE CONFIRMED=1 AND CLEARED=0 AND DATE BETWEEN '$from' and '$to'")->getResultObject();
+        $unconfirmed=$db->query("SELECT * FROM FINANCE WHERE CONFIRMED=0 and DATE BETWEEN '$from' and '$to'")->getResultObject();
+        $paidSummary=$db->query("SELECT COUNT(*) AS VOLUME,SUM(totalPayable) AS VALUE FROM finance WHERE CONFIRMED=1 AND CLEARED=1 AND DATE BETWEEN '$from' and '$to'")->getResultObject()[0];
+        $unpaidSummary=$db->query("SELECT COUNT(*) AS VOLUME,SUM(totalPayable) AS VALUE FROM finance WHERE CONFIRMED=1 AND CLEARED=0 AND DATE BETWEEN '$from' and '$to'")->getResultObject()[0];
+        $unconfirmedSummary=$db->query("SELECT COUNT(*) AS VOLUME,SUM(totalPayable) AS VALUE FROM finance WHERE CONFIRMED=0 AND DATE BETWEEN '$from' and '$to'")->getResultObject()[0];
+        try {
+            $reader = IOFactory::createReader('Xlsx');
+            $spreadsheet=$reader->load('app/Views/reportTemplates/Financial_Report_template.xlsx');
+            $spreadsheet->setActiveSheetIndex(0); //0=>paid
+            $sheet=$spreadsheet->getActiveSheet();
+            $sheet->setCellValue('L2',date('Y-M-d',strtotime($from)).' - '.date('Y-M-d',strtotime($to)))
+                ->setCellValue('L3',$paidSummary->VOLUME)
+                ->setCellValue('L4',$paidSummary->VALUE);
+            $startRow=8;
+            $currentRow=8;
+            foreach ($paid as $p){
+                $sheet->setCellValue('B'.$currentRow,$p->id)
+                    ->setCellValue('C'.$currentRow,$p->customerName)
+                    ->setCellValue('d'.$currentRow,$p->proformaNo)
+                    ->setCellValue('e'.$currentRow,$p->taxInvoiceNo)
+                    ->setCellValue('f'.$currentRow,$p->lpoNo)
+                    ->setCellValue('g'.$currentRow,$p->withholdingTax)
+                    ->setCellValue('h'.$currentRow,$p->vat)
+                    ->setCellValue('i'.$currentRow,$p->totalPayable)
+                    ->setCellValue('j'.$currentRow,$p->cleared)
+                    ->setCellValue('k'.$currentRow,$p->contactPerson)
+                    ->setCellValue('l'.$currentRow,$p->email)
+                    ->setCellValue('m'.$currentRow,$p->phone);
+                $currentRow++;
+            }
+            $filename="mrr.xlsx";
+            $writer=new Xlsx($spreadsheet);
+            header("Content-Disposition: attachment; filename=\"$filename\"");
+            header("Content-Type: application/vnd.ms-excel");
+            $writer->save("php://output");
+            exit();
+        } catch (\Exception $e) {
+            $logger=new Logger('errors');
+            $logger->pushHandler(new StreamHandler('Logs/Finance.log', Logger::INFO));
+            $logger->warning($e);
+            exit();
+        }
+    }
+
+    public function generateOld(){
         $db=Database::connect();
         $from=$this->request->getVar('from');
         $to=$this->request->getVar('to');
