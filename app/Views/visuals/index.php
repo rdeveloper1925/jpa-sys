@@ -39,8 +39,8 @@
                 <div class="row no-gutters align-items-center">
                     <div class="col mr-2">
                         <div class="text-md font-weight-bold text-success text-uppercase mb-1">Confirmed And Cleared Entries</div>
-                        <div class="h5 mb-0 font-weight-bold text-success text-900">UGX: <?=number_format($confirmedAndClearedValue,0)?></div>
-                        <div class="h5 mb-0 font-weight-bold text-success text-900"><?=($confirmedAndClearedVolume/$entries)*100?>% (<?=number_format($confirmedAndClearedVolume,0)?> entries)</div>
+                        <div class="h5 mb-0 font-weight-bold text-success text-900">UGX: <?=number_format(round($confirmedAndClearedValue,2),0)?></div>
+                        <div class="h5 mb-0 font-weight-bold text-success text-900"><?=round(($confirmedAndClearedVolume/$entries)*100,2)?>% (<?=number_format($confirmedAndClearedVolume,0)?> entries)</div>
                         <!--<p class="mb-0"style="text-align: right;"><a href="#" class="btn btn-sm btn-success">View more</a> </p>-->
                     </div>
                     <div class="col-auto">
@@ -57,7 +57,7 @@
                     <div class="col mr-2">
                         <div class="text-md font-weight-bold text-danger text-uppercase mb-1">Confirmed But Not Cleared Entries</div>
                         <div class="h5 mb-0 font-weight-bold text-danger text-900">UGX: <?=number_format($confirmedAndUnClearedValue,0)?></div>
-                        <div class="h5 mb-0 font-weight-bold text-danger text-900"><?=($confirmedAndUnClearedVolume/$entries)*100?>% (<?=number_format($confirmedAndUnClearedVolume,0)?> entries)</div>
+                        <div class="h5 mb-0 font-weight-bold text-danger text-900"><?=round(($confirmedAndUnClearedVolume/$entries)*100,2)?>% (<?=number_format($confirmedAndUnClearedVolume,0)?> entries)</div>
                         <!--<p class="mb-0"style="text-align: right;"><a href="#" class="btn btn-sm btn-success">View more</a> </p>-->
                     </div>
                     <div class="col-auto">

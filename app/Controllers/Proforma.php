@@ -97,8 +97,8 @@ class Proforma extends BaseController {
         $logger=new Logger('errors');
         $logger->pushHandler(new StreamHandler('Logs/proforma.log', Logger::INFO));
         $db=Database::connect();
-        $db->table('proformainvoicenumbers')->insert(['status'=>1]);
-        $proformaId=$db->insertID();
+        //$db->table('proformainvoicenumbers')->insert(['status'=>1]);
+        //$proformaId=$db->insertID();
         $invoice=array(
             'customerName'=>$this->request->getVar('customerName'),
             'contactPerson'=>$this->request->getVar('contactPerson'),
@@ -108,7 +108,7 @@ class Proforma extends BaseController {
             'phone'=>$this->request->getVar('phone'),
             'email'=>$this->request->getVar('email'),
             'otherContactDetails'=>$this->request->getVar('otherContactDetails'),
-            'invoiceId'=>$proformaId,
+            //'invoiceId'=>$proformaId,
             'customerId'=>$this->request->getVar('customerId'),
             'date'=>$this->request->getVar('date'),
             'currency'=>strtoupper($this->request->getVar('currency')),
@@ -118,7 +118,7 @@ class Proforma extends BaseController {
             'carType'=>$this->request->getVar('carType'),
             'mileage'=>$this->request->getVar('mileage'),
             'preparedBy'=>\Config\Services::session()->get('id'),
-            'proformaId'=>$proformaId,
+            //'proformaId'=>$invoiceId,
             'narration'=>$this->request->getVar('narration')
         );
         $db->table('proforma')->insert($invoice);

@@ -53,7 +53,7 @@
 			</td>
 			<td valign="top" style="width:35%; text-align: left">
 				<?php if($ttl=='PROFORMA INVOICE'): ?>
-				<div class="head-data">PROFORMA NO.: <b><span style="color: black;"><?=$data->proformaId?></span></b></div>
+				<div class="head-data">PROFORMA NO.: <b><span style="color: black;"><?=$data->invoiceId?></span></b></div>
 				<?php endif; ?>
 				<?php if($ttl=='TAX INVOICE'): ?>
 				<div class="head-data">INVOICE NO.: <b><span style="color: black;"><?=$invoiceId?></span></b></div>
@@ -90,7 +90,7 @@
                 TIN NO.: <b><?=$data->tinNo?></b><br>
 				<?php 
 					if($ttl=='PROFORMA INVOICE'){
-						echo "PROFORMA NO.: <b>".$data->proformaId."</b><br>";
+						echo "PROFORMA NO.: <b>".$data->invoiceId."</b><br>";
 					}else{
 						echo "INVOICE NO.: <b>".$invoiceId."</b><br>";
 					}

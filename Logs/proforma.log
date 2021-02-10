@@ -7,3 +7,7 @@
 [2021-02-06T07:03:20.791218-06:00] errors.INFO: New proforma (25543) created {"maker":"Administrator"} []
 [2021-02-06T07:10:35.707022-06:00] errors.INFO: New proforma (25544) created {"maker":"Administrator"} []
 [2021-02-06T08:06:46.586675-06:00] errors.INFO: New proforma (25545) created {"maker":"Administrator"} []
+[2021-02-09T01:32:33.449075-06:00] errors.INFO: Proforma (25545) of HESFB has been edited {"maker":"Administrator"} []
+[2021-02-09T01:35:08.795244-06:00] errors.INFO: New proforma (25546) created {"maker":"Administrator"} []
+[2021-02-09T01:42:58.084984-06:00] errors.INFO: Proforma (25546) of Uganda Electricity Disturibution Company has been edited {"maker":"Administrator"} []
+[2021-02-10T02:31:25.282581-06:00] errors.INFO: New proforma (25547) created {"maker":"Administrator"} []

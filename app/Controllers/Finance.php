@@ -4,6 +4,7 @@ use Config\Database;
 use Monolog\Handler\StreamHandler;
 use Monolog\Logger;
 use org\bovigo\vfs\vfsStreamContainerIterator;
+use PhpOffice\PhpSpreadsheet\IOFactory;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Exception;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
@@ -202,6 +203,15 @@ class Finance extends BaseController{
 
     public function allCustomersAllReports(){
         $db=Database::connect();
+        try {
+            $reader = IOFactory::createReader('Xlsx');
+            $spreadsheet=$reader->load('app/Views/reportTemplates/Financial_Report_template.xlsx');
+        } catch (\Exception $e) {
+        }
+    }
+
+    public function allCustomersAllReports_OLD(){
+        $db=Database::connect();
         $confirmed=$db->query('SELECT COUNT(*) AS VOLUME,SUM(totalPayable) AS VALUE FROM finance WHERE CONFIRMED=1')->getResultObject()[0];
         $cleared=$db->query('SELECT COUNT(*) AS VOLUME, SUM(totalPayable) AS VALUE FROM finance WHERE CLEARED=1')->getResultObject()[0];
         $confirmedAndCleared=$db->query('SELECT COUNT(*) AS VOLUME, SUM(totalPayable) AS VALUE FROM finance WHERE CLEARED=1 AND confirmed=1')->getResultObject()[0];
@@ -243,11 +253,11 @@ class Finance extends BaseController{
         }
         $results=$db->query($confirmedQuery)->getResultObject();
         $spreadsheet=new Spreadsheet();
-        $spreadsheet->getActiveSheet()->getColumnDimension('A')->getAutoSize();
+        $spreadsheet->getActiveSheet()->getColumnDimension('A')->setAutoSize();
         $sheet=$spreadsheet->getActiveSheet();
         $sheet->setTitle("Confirmed Jobs");
         $sheet->mergeCells("A1:H1");
-        $sheet->setCellValue('A1',"CONFIRMED JOBS REPORT FROM $from to $to at JAPAN AUTO CARE");
+        $sheet->setCellValue('A1',"CONFIRMED JOBS REPORT FROM $from to $to at JAPAN AUTO CARE")->getStyle("A1:h1")->getFont()->setBold();
         $sheet->setCellValue('A2','ENTRY ID');
         $sheet->setCellValue('B2','PROFORMA NO');
         $sheet->getColumnDimension('B')->getAutoSize();
@@ -290,7 +300,7 @@ class Finance extends BaseController{
         $sheet2->setTitle("holla");
 
         $writer=new Xlsx($spreadsheet);
-        $filename="REPORT.xlsx";
+        $filename="REPORT.xls";
         try {
             header("Content-Disposition: attachment; filename=\"$filename\"");
             header("Content-Type: application/vnd.ms-excel");

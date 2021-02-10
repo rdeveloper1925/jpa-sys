@@ -59,7 +59,7 @@
                         <hr>
                         <div class="form-group col-4">
                             <label for="">Date: </label>
-                            <input type="date" class="form-control" name="date" value="<?=date('Y-m-d',strtotime($invoice->date))?>" required>
+                            <input type="date" class="form-control" name="date" value="<?=date('Y-m-d',strtotime($invoice->date))?>" required/>
                         </div>
                         <div class="form-group col-4">
                             <label for="">Currency: </label>
