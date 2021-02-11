@@ -187,6 +187,10 @@
                             <input type="number" class="form-control" name="totalPayable" required/>
                         </div>
                         <div class="col-4 form-group">
+                            <label for="">Car Registration No:</label>
+                            <input type="text" class="form-control" name="carRegNo" required/>
+                        </div>
+                        <div class="col-4 form-group">
                             <label for="">Cleared:</label>
                             <br><input type="radio" name="cleared" value="1"/> Cleared<br>
                             <input type="radio" name="cleared" value="0"/> Not Cleared
@@ -202,6 +206,7 @@
         </div>
     </div>
 </div>
+
 <!--View finanacial model -->
 <div class="modal fade" id="modal-view" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
     <div class="modal-dialog modal-lg " role="document">
@@ -275,6 +280,10 @@
                         <div class="col-4 form-group">
                             <label for="">Total Payable:</label>
                             <input type="number" class="form-control" id="totalPayable2" disabled/>
+                        </div>
+                        <div class="col-4 form-group">
+                            <label for="">Car Registration No:</label>
+                            <input type="text" class="form-control" id="carRegNo2" disabled/>
                         </div>
                         <div class="col-4 form-group">
                             <label for="">Cleared:</label>
@@ -368,6 +377,10 @@
                             <input type="number" class="form-control" id='totalPayable3' name="totalPayable" required/>
                         </div>
                         <div class="col-4 form-group">
+                            <label for="">Car Registration No:</label>
+                            <input type="text" class="form-control" id="carRegNo3" name="carRegNo" required/>
+                        </div>
+                        <div class="col-4 form-group">
                             <label for="">Cleared:</label>
                             <br><input type="radio" id="cleared11" name="cleared" value="1"/> Cleared<br>
                             <input type="radio" id="cleared00" name="cleared" value="0"/> Not Cleared
@@ -453,6 +466,7 @@
                     $("#taxInvoiceNo2").val(data.entry.taxInvoiceNo);
                     $("#date2").val(data.entry.date);
                     $("#totalPayable2").val(data.entry.totalPayable);
+                    $("#carRegNo2").val(data.entry.carRegNo);
                     $("#vat2").val(data.entry.vat);
                     $("#withholdingTax2").val(data.entry.withholdingTax);
                     $("#lpoNo2").val(data.entry.lpoNo);
@@ -491,6 +505,7 @@
                     $("#date3").val(data.entry.date);
                     $("#vat3").val(data.entry.vat);
                     $("#entryId").val(data.entry.id);
+                    $("#carRegNo3").val(data.entry.carRegNo);
                     $("#withholdingTax3").val(data.entry.withholdingTax);
                     $("#lpoNo3").val(data.entry.lpoNo);
                     if(data.entry.cleared==1){

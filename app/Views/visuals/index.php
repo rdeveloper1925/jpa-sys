@@ -6,7 +6,7 @@
             <div class="card-body">
                 <div class="row no-gutters align-items-center">
                     <div class="col mr-2">
-                        <div class="text-md font-weight-bold text-primary text-uppercase mb-1">Total Financial Entries</div>
+                        <div class="text-md font-weight-bold text-primary text-uppercase mb-1">Total Financial Entries (Selected Period)</div>
                         <div class="h5 mb-0 font-weight-bold text-gray-800"><?=$entries?></div>
                         <!--<p class="mb-0"style="text-align: right;"><a href="#" class="btn btn-sm btn-success">View more</a> </p>-->
                     </div>
@@ -22,7 +22,7 @@
             <div class="card-body">
                 <div class="row no-gutters align-items-center">
                     <div class="col mr-2">
-                        <div class="text-md font-weight-bold text-primary text-uppercase mb-1">Value of Financial Entries</div>
+                        <div class="text-md font-weight-bold text-primary text-uppercase mb-1">Value of Financial Entries (Selected Period)</div>
                         <div class="h5 mb-0 font-weight-bold text-gray-900">UGX: <?=number_format($entryValue,0)?></div>
                         <!--<p class="mb-0"style="text-align: right;"><a href="#" class="btn btn-sm btn-success">View more</a> </p>-->
                     </div>
@@ -38,7 +38,7 @@
             <div class="card-body">
                 <div class="row no-gutters align-items-center">
                     <div class="col mr-2">
-                        <div class="text-md font-weight-bold text-success text-uppercase mb-1">Confirmed And Cleared Entries</div>
+                        <div class="text-md font-weight-bold text-success text-uppercase mb-1">Confirmed And Cleared Entries (Selected Period)</div>
                         <div class="h5 mb-0 font-weight-bold text-success text-900">UGX: <?=number_format(round($confirmedAndClearedValue,2),0)?></div>
                         <div class="h5 mb-0 font-weight-bold text-success text-900"><?=round(($confirmedAndClearedVolume/$entries)*100,2)?>% (<?=number_format($confirmedAndClearedVolume,0)?> entries)</div>
                         <!--<p class="mb-0"style="text-align: right;"><a href="#" class="btn btn-sm btn-success">View more</a> </p>-->
@@ -55,7 +55,7 @@
             <div class="card-body">
                 <div class="row no-gutters align-items-center">
                     <div class="col mr-2">
-                        <div class="text-md font-weight-bold text-danger text-uppercase mb-1">Confirmed But Not Cleared Entries</div>
+                        <div class="text-md font-weight-bold text-danger text-uppercase mb-1">Confirmed But Not Cleared Entries </div>
                         <div class="h5 mb-0 font-weight-bold text-danger text-900">UGX: <?=number_format($confirmedAndUnClearedValue,0)?></div>
                         <div class="h5 mb-0 font-weight-bold text-danger text-900"><?=round(($confirmedAndUnClearedVolume/$entries)*100,2)?>% (<?=number_format($confirmedAndUnClearedVolume,0)?> entries)</div>
                         <!--<p class="mb-0"style="text-align: right;"><a href="#" class="btn btn-sm btn-success">View more</a> </p>-->
@@ -68,11 +68,11 @@
         </div>
     </div>
     <!-- Confirmed Chart -->
-    <div class="col-xl-5 col-lg-5">
+    <div class="col-xl-4 col-lg-4">
         <div class="card shadow mb-4">
             <!-- Card Header - Dropdown -->
             <div class="card-header py-3">
-                <h6 class="m-0 font-weight-bold text-primary">CONFIRMED VS UNCONFIRMED ENTRIES</h6>
+                <h6 class="m-0 font-weight-bold text-primary">CONFIRMED VS UNCONFIRMED</h6>
             </div>
             <!-- Card Body -->
             <div class="card-body">
@@ -98,6 +98,7 @@
             </div>
         </div>
     </div>
+
 
     <!-- Collected Revenue -->
     <div class="card col-12 shadow mb-4">
@@ -132,15 +133,13 @@
             <div class="card-body">
                 <form action="<?=base_url('finance/generate/')?>" method="post">
                     <div class="form-group">
-                        <label>From Date:</label>
-                        <input type="date" required name="from" class="form-control">
+                        <input type="hidden" required name="from" value="<?=$from?>" class="form-control">
                         <input type="hidden" value="<?=$customerId?>" name="customerId"/>
                     </div>
                     <div class="form-group">
-                        <label>To Date:</label>
-                        <input type="date" required name="to" class="form-control">
+                        <input type="hidden" required value="<?=$to?>" name="to" class="form-control">
                     </div>
-                    <input type="submit" class="btn btn-outline-success" value="Generate Excel Report"/>
+                    <input type="submit" class="btn btn-outline-success" value="Generate this as Excel Report"/>
                 </form>
             </div>
         </div>
