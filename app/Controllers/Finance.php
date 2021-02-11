@@ -121,7 +121,7 @@ class Finance extends BaseController{
 
     public function report_select(){
         $db=Database::connect();
-        $customers=$db->table('customers')->select('customerName,id')->get()->getResultObject();
+        $customers=$db->query("select distinct(a.id),a.customerName from customers a, finance b where a.id=b.customerId")->getResultObject();
         return view('finance/report_select',['title'=>'Select Report','customers'=>$customers]);
     }
 
@@ -229,9 +229,10 @@ class Finance extends BaseController{
         $data['trend']=$db->query("select count(*) as VOLUME,sum(totalPayable) AS VALUE, year(date) AS YEAR, date_format(date,'%b') AS MONTH from finance where cleared=1 and customerId='$customer' and date between '$from' and '$to' group by year(date),month(date) order by year(date) desc LIMIT 12")->getResultObject();
         $data['trendMaxValue']=$db->query("select max(VALUE) AS MAX_VALUE FROM (SELECT sum(totalPayable) AS VALUE FROM FINANCE finance where cleared=1 and customerId='$customer' and date between '$from' and '$to' group by year(date),month(date) ORDER BY YEAR(DATE) DESC LIMIT 12) AS FIN2;")->getResultObject()[0]->MAX_VALUE+400000;
         $data['customerId']=$customer;
+        $data['customerName']=$customerName;
         $data['from']=$from;
         $data['to']=$to;
-        return view('visuals/index',$data);
+        return view('visuals/index_single_customer',$data);
     }
 
     public function generate(){
@@ -406,6 +407,194 @@ class Finance extends BaseController{
 
             //producing the excel
             $filename="General Report.xls";
+            $writer=new Xlsx($spreadsheet);
+            header("Content-Disposition: attachment; filename=\"$filename\"");
+            header("Content-Type: application/vnd.ms-excel");
+            $writer->save("php://output");
+            exit();
+        } catch (\Exception $e) {
+            $logger=new Logger('errors');
+            $logger->pushHandler(new StreamHandler('Logs/Finance.log', Logger::INFO));
+            $logger->warning($e);
+            exit();
+        }
+
+    }
+
+    public function generateSingleCustomer(){
+        $db=Database::connect();
+        $from=$this->request->getVar('from');
+        $to=$this->request->getVar('to');
+        $customer=$this->request->getVar('customerId');
+        $customerName=$this->request->getVar('customerName');
+        //check dates to prevent errors
+        if($to<$from){
+            session()->setFlashdata('fail','The to date has to be latest than from date');
+            return redirect()->to(base_url('finance/report_select'));
+        }
+        $paid=$db->query("SELECT * FROM FINANCE WHERE CONFIRMED=1 AND CLEARED=1 and customerId='$customer' AND DATE BETWEEN '$from' and '$to'")->getResultObject();
+        $unpaid=$db->query("SELECT * FROM FINANCE WHERE CONFIRMED=1 AND CLEARED=0 and customerId='$customer' AND DATE BETWEEN '$from' and '$to'")->getResultObject();
+        $unconfirmed=$db->query("SELECT * FROM FINANCE WHERE CONFIRMED=0 and customerId='$customer' and DATE BETWEEN '$from' and '$to'")->getResultObject();
+        $paidSummary=$db->query("SELECT COUNT(*) AS VOLUME,SUM(totalPayable) AS VALUE FROM finance WHERE CONFIRMED=1 and customerId='$customer' AND CLEARED=1 AND DATE BETWEEN '$from' and '$to'")->getResultObject()[0];
+        $unpaidSummary=$db->query("SELECT COUNT(*) AS VOLUME,SUM(totalPayable) AS VALUE FROM finance WHERE CONFIRMED=1 and customerId='$customer' AND CLEARED=0 AND DATE BETWEEN '$from' and '$to'")->getResultObject()[0];
+        $unconfirmedSummary=$db->query("SELECT COUNT(*) AS VOLUME,SUM(totalPayable) AS VALUE FROM finance WHERE CONFIRMED=0 and customerId='$customer' AND DATE BETWEEN '$from' and '$to'")->getResultObject()[0];
+        //paid
+        try {
+            $reader = IOFactory::createReader('Xlsx');
+            $spreadsheet=$reader->load('app/Views/reportTemplates/Financial_Report_Template_Single_Customer.xlsx');
+            $spreadsheet->setActiveSheetIndex(0); //0=>paid
+            $sheet=$spreadsheet->getActiveSheet();
+            $sheet->setCellValue('L2',date('Y-M-d',strtotime($from)).' - '.date('Y-M-d',strtotime($to)))
+                ->setCellValue('L3',$paidSummary->VOLUME)
+                ->setCellValue('L4',$paidSummary->VALUE)
+                ->setCellValue('e7',$customerName);
+            $colored=array(
+                'font'=>array(
+                    'bold'=>true
+                ),
+                'fill' => array(
+                    'fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
+                    'startColor' => [
+                        'argb' => 'FFDDC2',
+                    ],
+                )
+            );
+            $colored_total=array(
+                'font'=>array(
+                    'bold'=>true
+                ),
+                'fill' => array(
+                    'fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
+                    'startColor' => [
+                        'argb' => '60FF7E',
+                    ],
+                )
+            );
+            $color=true;
+            $currentRow=9;$start=9;
+            foreach ($paid as $p){
+                //insert new row
+                $sheet->insertNewRowBefore($currentRow+1,1);
+                if($color){
+                    $sheet->getStyle('B'.$currentRow.':'.'N'.$currentRow)->applyFromArray($colored);
+                    $color=false;
+                }else{
+                    $sheet->getStyle('B'.$currentRow.':'.'N'.$currentRow)->getFont()->setBold(true);
+                    $color=true;
+                }
+                $sheet->setCellValue('B'.$currentRow,$p->id)
+                    ->setCellValue('C'.$currentRow,$p->customerName)
+                    ->setCellValue('d'.$currentRow,$p->proformaNo)
+                    ->setCellValue('e'.$currentRow,$p->taxInvoiceNo)
+                    ->setCellValue('f'.$currentRow,$p->lpoNo)
+                    ->setCellValue('g'.$currentRow,$p->withholdingTax)
+                    ->setCellValue('h'.$currentRow,$p->vat)
+                    ->setCellValue('i'.$currentRow,$p->totalPayable)
+                    ->setCellValue('j'.$currentRow,"CLEARED")
+                    ->setCellValue('k'.$currentRow,$p->contactPerson)
+                    ->setCellValue('l'.$currentRow,$p->carRegNo)
+                    ->setCellValue('m'.$currentRow,$p->phone)
+                    ->setCellValue('N'.$currentRow,date('Y-M-d',strtotime($p->date)));
+                $currentRow++;
+            }
+            //totals row
+            $sheet->insertNewRowBefore($currentRow+1,1);
+            $sheet->getStyle('B'.$currentRow.':'.'N'.$currentRow)->applyFromArray($colored_total)->getFont()->setSize(12);
+            $sheet->mergeCells('b'.$currentRow.':c'.$currentRow);
+            $sheet->setCellValue('b'.$currentRow,'TOTALS CLEARED');
+            $sheet->setCellValue('g'.$currentRow,"=SUM(G$start:G$currentRow)");
+            $sheet->setCellValue('h'.$currentRow,"=SUM(H$start:H$currentRow)");
+            $sheet->setCellValue('I'.$currentRow,"=SUM(I$start:I$currentRow)");
+            //-----------------------------------------end of paid
+
+
+            //-----------------------------------------start of unpaid
+            $spreadsheet->setActiveSheetIndex(1); //1=>unpaid
+            $sheet=$spreadsheet->getActiveSheet();
+            $sheet->setCellValue('L2',date('Y-M-d',strtotime($from)).' - '.date('Y-M-d',strtotime($to)))
+                ->setCellValue('L3',$unpaidSummary->VOLUME)
+                ->setCellValue('L4',$unpaidSummary->VALUE)->setCellValue('e7',$customerName);
+            $color=true;
+            $currentRow=9;$start=9;
+            foreach ($unpaid as $p){
+                //insert new row
+                $sheet->insertNewRowBefore($currentRow+1,1);
+                if($color){
+                    $sheet->getStyle('B'.$currentRow.':'.'N'.$currentRow)->applyFromArray($colored);
+                    $color=false;
+                }else{
+                    $sheet->getStyle('B'.$currentRow.':'.'N'.$currentRow)->getFont()->setBold(true);
+                    $color=true;
+                }
+                $sheet->setCellValue('B'.$currentRow,$p->id)
+                    ->setCellValue('C'.$currentRow,$p->customerName)
+                    ->setCellValue('d'.$currentRow,$p->proformaNo)
+                    ->setCellValue('e'.$currentRow,$p->taxInvoiceNo)
+                    ->setCellValue('f'.$currentRow,$p->lpoNo)
+                    ->setCellValue('g'.$currentRow,$p->withholdingTax)
+                    ->setCellValue('h'.$currentRow,$p->vat)
+                    ->setCellValue('i'.$currentRow,$p->totalPayable)
+                    ->setCellValue('j'.$currentRow,"UNCLEARED")
+                    ->setCellValue('k'.$currentRow,$p->contactPerson)
+                    ->setCellValue('l'.$currentRow,$p->carRegNo)
+                    ->setCellValue('m'.$currentRow,$p->phone)
+                    ->setCellValue('N'.$currentRow,date('Y-M-d',strtotime($p->date)));
+                $currentRow++;
+            }
+            //totals row
+            $sheet->insertNewRowBefore($currentRow+1,1);
+            $sheet->getStyle('B'.$currentRow.':'.'N'.$currentRow)->applyFromArray($colored_total)->getFont()->setSize(12);
+            $sheet->mergeCells('b'.$currentRow.':c'.$currentRow);
+            $sheet->setCellValue('b'.$currentRow,'TOTALS UNCLEARED');
+            $sheet->setCellValue('g'.$currentRow,"=SUM(G$start:G$currentRow)");
+            $sheet->setCellValue('h'.$currentRow,"=SUM(H$start:H$currentRow)");
+            $sheet->setCellValue('I'.$currentRow,"=SUM(I$start:I$currentRow)");
+
+            //-----------------------------------------start of unconfirmed
+            $spreadsheet->setActiveSheetIndex(2); //2=>unconfirmed
+            $sheet=$spreadsheet->getActiveSheet();
+            $sheet->setCellValue('L2',date('Y-M-d',strtotime($from)).' - '.date('Y-M-d',strtotime($to)))
+                ->setCellValue('L3',$unconfirmedSummary->VOLUME)
+                ->setCellValue('L4',$unconfirmedSummary->VALUE)->setCellValue('e7',$customerName);
+            $color=true;
+            $currentRow=9;$start=9;
+            foreach ($unconfirmed as $p){
+                //insert new row
+                $sheet->insertNewRowBefore($currentRow+1,1);
+                if($color){
+                    $sheet->getStyle('B'.$currentRow.':'.'N'.$currentRow)->applyFromArray($colored);
+                    $color=false;
+                }else{
+                    $sheet->getStyle('B'.$currentRow.':'.'N'.$currentRow)->getFont()->setBold(true);
+                    $color=true;
+                }
+                $sheet->setCellValue('B'.$currentRow,$p->id)
+                    ->setCellValue('C'.$currentRow,$p->customerName)
+                    ->setCellValue('d'.$currentRow,$p->proformaNo)
+                    ->setCellValue('e'.$currentRow,$p->taxInvoiceNo)
+                    ->setCellValue('f'.$currentRow,$p->lpoNo)
+                    ->setCellValue('g'.$currentRow,$p->withholdingTax)
+                    ->setCellValue('h'.$currentRow,$p->vat)
+                    ->setCellValue('i'.$currentRow,$p->totalPayable)
+                    ->setCellValue('j'.$currentRow,"UNCONFIRMED")
+                    ->setCellValue('k'.$currentRow,$p->contactPerson)
+                    ->setCellValue('l'.$currentRow,$p->carRegNo)
+                    ->setCellValue('m'.$currentRow,$p->phone)
+                    ->setCellValue('N'.$currentRow,date('Y-M-d',strtotime($p->date)));
+                $currentRow++;
+            }
+            //totals row
+            $sheet->insertNewRowBefore($currentRow+1,1);
+            $sheet->getStyle('B'.$currentRow.':'.'N'.$currentRow)->applyFromArray($colored_total)->getFont()->setSize(12);
+            $sheet->mergeCells('b'.$currentRow.':c'.$currentRow);
+            $sheet->setCellValue('b'.$currentRow,'TOTALS UNCONFIRMED');
+            $sheet->setCellValue('g'.$currentRow,"=SUM(G$start:G$currentRow)");
+            $sheet->setCellValue('h'.$currentRow,"=SUM(H$start:H$currentRow)");
+            $sheet->setCellValue('I'.$currentRow,"=SUM(I$start:I$currentRow)");
+
+
+            //producing the excel
+            $filename="Single Customer Report.xls";
             $writer=new Xlsx($spreadsheet);
             header("Content-Disposition: attachment; filename=\"$filename\"");
             header("Content-Type: application/vnd.ms-excel");
