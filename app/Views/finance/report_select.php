@@ -22,11 +22,11 @@
             </div>
             <div class="form-group">
                 <label>From Date:</label>
-                <input type="date" class="form-control" name="from" required/>
+                <input type="date" class="form-control" required name="from" required/>
             </div>
             <div class="form-group">
                 <label>To Date:</label>
-                <input type="date" class="form-control" name="to" required/>
+                <input type="date" class="form-control" required name="to" required/>
             </div><!--
             <div class="form-group">
                 <label>Report type:</label>

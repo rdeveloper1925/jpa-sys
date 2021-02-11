@@ -37,3 +37,5 @@
 [2021-02-11T16:06:19.137977-06:00] errors.INFO: Generating specific customer (8) report by {"User":"Administrator"} []
 [2021-02-11T16:07:19.744006-06:00] errors.INFO: Generating specific customer (8) report by {"User":"Administrator"} []
 [2021-02-11T16:09:52.042201-06:00] errors.INFO: Generating specific customer (8) report by {"User":"Administrator"} []
+[2021-02-11T16:17:53.094938-06:00] errors.INFO: Generating all customers report by {"maker":null} []
+[2021-02-11T16:18:57.233436-06:00] errors.INFO: Generating all customers report by {"maker":"Administrator"} []

@@ -404,6 +404,8 @@ class Finance extends BaseController{
             $sheet->setCellValue('h'.$currentRow,"=SUM(H$start:H$currentRow)");
             $sheet->setCellValue('I'.$currentRow,"=SUM(I$start:I$currentRow)");
 
+            //making the active sheet the paid one
+            $spreadsheet->setActiveSheetIndex(0);
 
             //producing the excel
             $filename="General Report.xls";
@@ -592,6 +594,8 @@ class Finance extends BaseController{
             $sheet->setCellValue('h'.$currentRow,"=SUM(H$start:H$currentRow)");
             $sheet->setCellValue('I'.$currentRow,"=SUM(I$start:I$currentRow)");
 
+            //making the active sheet the paid one
+            $spreadsheet->setActiveSheetIndex(0);
 
             //producing the excel
             $filename="Single Customer Report.xls";
