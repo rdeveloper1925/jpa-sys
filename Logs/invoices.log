@@ -7,3 +7,6 @@
 [2021-02-06T07:07:26.757606-06:00] errors.INFO: New tax invoice (8774) for Uganda Bureau of Statistics created & inserted into finance table {"maker":"Administrator"} []
 [2021-02-06T08:08:28.910376-06:00] errors.INFO: New tax invoice (8775) for HESFB created & inserted into finance table {"maker":"Administrator"} []
 [2021-02-10T00:22:26.757423-06:00] errors.INFO: New tax invoice (8776) for Uganda Wild Life Authority created & inserted into finance table {"maker":"Administrator"} []
+[2021-02-12T10:22:36.290385-06:00] errors.INFO: New tax invoice (8776) for UGANDA NATIONAL ROADS AUTHORITY created & inserted into finance table {"maker":"Administrator"} []
+[2021-02-12T10:28:06.347110-06:00] errors.INFO: New tax invoice (8777) for NATIONAL WATER AND SEWARAGE COPERATION created & inserted into finance table {"maker":"Administrator"} []
+[2021-02-12T10:37:47.772314-06:00] errors.INFO: New tax invoice (8778) for The AIDS Support Organisation created & inserted into finance table {"maker":"Administrator"} []

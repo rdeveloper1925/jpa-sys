@@ -1,15 +1,49 @@
 <?php $this->extend('layouts/app') ?>
 <?php $this->section('content'); ?>
 <div class="row">
-    <div class="col-md-6 col-sm-6">
+    <div class="col-md-4 col-sm-4">
         <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#modal-create"><i class="fa fa-plus" aria-hidden="true"></i>
             Create New Entry
         </button>
     </div>
-    <div class="col-6 float-right">
+    <div class="col-4 float-right">
         <a href="<?=base_url('finance/report_select')?>" class="btn btn-success" >
             <i class="fa fa-clipboard-list"></i> View Financial Reports
         </a>
+    </div>
+    <div class="col-4 float-right">
+        <button type="button" class="btn btn-warning" data-toggle="modal" data-target="#exampleModal123">
+            <i class="fa fa-random"></i> Match Proforma to Tax invoice
+        </button>
+    </div>
+    <!-- Button trigger modal -->
+
+
+    <!-- Modal -->
+    <div class="modal fade" id="exampleModal123" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form method="post" action="<?=base_url('finance/view_match')?>">
+                        <div class="form-group">
+                            <label>Proforma Invoice Number</label>
+                            <input type="number" name="proformaId" class="form-control" required/>
+                        </div>
+                        <div class="form-group">
+                            <label>Tax Invoice Number</label>
+                            <input type="number" class="form-control" name="invoiceId" required/>
+                        </div>
+                        <input type="submit" class="btn btn-success" value="View matching"/>
+                    </form>
+                </div>
+            </div>
+        </div>
     </div>
     <?php if(\Config\Services::session()->has('success')): ?>
         <div class="alert alert-success alert-dismissible fade show col-12" role="alert">

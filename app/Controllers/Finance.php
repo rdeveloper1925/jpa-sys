@@ -20,6 +20,76 @@ class Finance extends BaseController{
         return view('finance/index', ['title'=>'Finances', 'finances'=>$finances,'customers'=>$customers]);
     }
 
+    public function view_match(){
+        $db=Database::connect();
+        $proformaId=$this->request->getVar('proformaId');
+        $invoiceId=$this->request->getVar('invoiceId');
+        $invoice=$db->table('invoice')->getWhere(['invoiceId'=>$invoiceId])->getResultObject();
+        $invoiceItemsCost=$db->query("SELECT SUM(TOTAL) AS TOTAL FROM invoiceitems2 WHERE invoiceId='$invoiceId'")->getResultObject()[0]->TOTAL;
+        $proforma=$db->table('proforma')->getWhere(['invoiceId'=>$proformaId])->getResultObject();
+        $proformaItemsCost=$db->query("SELECT SUM(TOTAL) AS TOTAL FROM proformaitems2 WHERE invoiceId='$proformaId'")->getResultObject()[0]->TOTAL;
+        if(empty($proforma)||empty($invoice)){
+            return redirect()->to(base_url('finance/'))->with('fail','No matching found');
+        }
+        $data['vat']=$proformaItemsCost*0.18;
+        if(($data['vat']+$proformaItemsCost)>=1000000){
+            $data['withholdingTax']=($data['vat']+$proformaItemsCost)*0.06;
+        }else{
+            $data['withholdingTax']=0;
+        }
+        $data['vat2']=$invoiceItemsCost*0.18;
+        if(($data['vat2']+$invoiceItemsCost)>=1000000){
+            $data['withholdingTax2']=($data['vat2']+$invoiceItemsCost)*0.06;
+        }else{
+            $data['withholdingTax2']=0;
+        }
+        $data['invoiceItemsCost']=$invoiceItemsCost;
+        $data['proformaItemsCost']=$proformaItemsCost;
+        $data['totalValue']=$data['vat']+$data['withholdingTax']+$proformaItemsCost;
+        $data['title']="Match Proforma to tax invoice";
+        $data['invoice']=$invoice[0];
+        $data['proforma']=$proforma[0];
+        $data['proformaId']=$proformaId;
+        $data['invoiceId']=$invoice;
+
+        $data['totalValue2']=$data['vat2']+$data['withholdingTax2']+$invoiceItemsCost;
+        return view('finance/match',$data);
+    }
+
+    public function confirm_match(){
+        $logger=new Logger('errors');
+        $logger->pushHandler(new StreamHandler('Logs/Finance.log', Logger::INFO));
+        $db=Database::connect();
+        $proformaId=$this->request->getVar('proformaId');
+        $invoiceId=$this->request->getVar('invoiceId');
+        $invoice=$db->table('invoice')->getWhere(['invoiceId'=>$invoiceId])->getResultObject()[0];
+
+        $taxInvoiceEntry=array(
+            'date'=>$invoice->date,
+            'proformaNo'=>$proformaId,
+            'taxInvoiceNo'=>$invoiceId,
+            'lpoNo'=>$invoice->lpoNo,
+            'customerId'=>$invoice->customerId,
+            'customerName'=>$invoice->customerName,
+            'confirmed'=>1,
+            'withholdingTax'=>$this->request->getVar('withholdingTax'),
+            'vat'=>$this->request->getVar('vat'),
+            'totalPayable'=>$this->request->getVar('totalValue'),
+            'cleared'=>0,
+            'email'=>$invoice->email,
+            'phone'=>$invoice->phone,
+            'areaCountry'=>$invoice->areaCountry,
+            'address'=>$invoice->address,
+            'tinNo'=>$invoice->tinNo,
+            'carRegNo'=>$invoice->carRegNo,
+            'contactPerson'=>$invoice->contactPerson,
+        );
+        $db->table('finance')->insert($taxInvoiceEntry);
+        $logger->info("New financial entry matched",['maker'=>session()->get('fullName')]);
+        session()->setFlashdata('success',"New financial Entries have been Matched ($invoiceId and $proformaId)");
+        return redirect()->to(base_url('finance'));
+    }
+
     public function save(){
         $logger=new Logger('errors');
         $logger->pushHandler(new StreamHandler('Logs/Finance.log', Logger::INFO));
